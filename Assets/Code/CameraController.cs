@@ -13,6 +13,8 @@ public class CameraController : MonoBehaviour
 	void Start()
 	{
 		character = transform.parent;
+		Cursor.visible = false;
+		Cursor.lockState = CursorLockMode.Locked;
 	}
 
 	void Update()
