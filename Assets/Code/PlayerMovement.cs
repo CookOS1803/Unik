@@ -18,31 +18,36 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
-
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float speed = isRunning ? runningSpeed : walkingSpeed;
-
-        float curSpeedX = speed * Input.GetAxisRaw("Vertical");
-        float curSpeedY = speed * Input.GetAxisRaw("Horizontal");
-        float movementDirectionY = moveDirection.y;
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+        CalculateMovement();
 
         if (Input.GetButton("Jump") && characterController.isGrounded)
         {
             moveDirection.y = jumpSpeed;
-        }
-        else
-        {
-            moveDirection.y = movementDirectionY;
         }
 
         if (!characterController.isGrounded)
         {
             moveDirection.y -= mass * Time.deltaTime;
         }
+        else if (moveDirection.y < 0f)
+        {
+            moveDirection.y = 0f;
+        }
 
         characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    private void CalculateMovement()
+    {
+        Vector3 forward = transform.TransformDirection(Vector3.forward);
+        Vector3 right = transform.TransformDirection(Vector3.right);
+
+        bool isRunning = Input.GetButton("Sprint");
+        float speed = isRunning ? runningSpeed : walkingSpeed;
+
+        float curSpeedX = speed * Input.GetAxisRaw("Vertical");
+        float curSpeedY = speed * Input.GetAxisRaw("Horizontal");
+
+        moveDirection = forward * curSpeedX + new Vector3(0f, moveDirection.y, 0f) + right * curSpeedY;
     }
 }
