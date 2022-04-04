@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     public float mass = 20f;
     private CharacterController characterController;
     private Vector3 moveDirection = Vector3.zero;
+    private bool wallContact = false;
 
     void Start()
     {
@@ -18,22 +19,28 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        CalculateMovement();
-
-        if (Input.GetButton("Jump") && characterController.isGrounded)
+        if (wallContact && !characterController.isGrounded)
         {
-            moveDirection.y = jumpSpeed;
+            moveDirection = transform.TransformDirection(Vector3.forward);
         }
-
-        if (!characterController.isGrounded)
+        else
         {
-            moveDirection.y -= mass * Time.deltaTime;
-        }
-        else if (moveDirection.y < 0f)
-        {
-            moveDirection.y = 0f;
-        }
+            CalculateMovement();
 
+            if (Input.GetButton("Jump") && characterController.isGrounded)
+            {
+                moveDirection.y = jumpSpeed;
+            }
+
+            if (!characterController.isGrounded)
+            {
+                moveDirection.y -= mass * Time.deltaTime;
+            }
+            else if (moveDirection.y < 0f)
+            {
+                moveDirection.y = 0f;
+            }
+        }
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
@@ -49,5 +56,10 @@ public class PlayerMovement : MonoBehaviour
         float curSpeedY = speed * Input.GetAxisRaw("Horizontal");
 
         moveDirection = forward * curSpeedX + new Vector3(0f, moveDirection.y, 0f) + right * curSpeedY;
+    }
+
+    public void SetWallContact(bool state)
+    {
+        wallContact = state;
     }
 }
