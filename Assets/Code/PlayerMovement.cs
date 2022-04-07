@@ -9,36 +9,29 @@ public class PlayerMovement : MonoBehaviour
     public float jumpSpeed = 5f;
     public float mass = 20f;
     public float wallContactLength = 0.5f;
-    public Vector3 wallContactOrigin;
-    public LayerMask wallContactLayer;
     private CharacterController characterController;
+    private Rigidbody rb;
     private Vector3 moveDirection = Vector3.zero;
-
-    public Vector3 RelativeContactOrigin => transform.TransformPoint(wallContactOrigin);
+    private bool isGrounded;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        RaycastHit hit;
-
-        if (Physics.Linecast(RelativeContactOrigin, RelativeContactOrigin + transform.TransformDirection(Vector3.left) * wallContactLength, out hit, wallContactLayer.value))
+        CalculateMovementFromInputs();
+        CalculateGravity();
+                
+        if (characterController.enabled)
+            characterController.Move(moveDirection * Time.deltaTime);
+        else if (Physics.Linecast(transform.position, transform.position + transform.TransformDirection(Vector3.down) * wallContactLength, LayerMask.GetMask("Wall")))
         {
-            Vector3 t = hit.point - RelativeContactOrigin;
-            //Euler
-            moveDirection = new Vector3(t.z, 0f, -t.x) * walkingSpeed + t;
-            
+            characterController.enabled = true;
+            rb.isKinematic = true;
         }
-        else
-        {
-            CalculateMovementFromInputs();
-            CalculateGravity();
-        }
-        
-        characterController.Move(moveDirection * Time.deltaTime);
     }
 
 
@@ -57,7 +50,10 @@ public class PlayerMovement : MonoBehaviour
         
         if (Input.GetButton("Jump") && characterController.isGrounded)
         {
-            moveDirection.y = jumpSpeed;
+            //moveDirection.y = jumpSpeed;
+            characterController.enabled = false;
+            rb.isKinematic = false;
+            rb.velocity = (Vector3.up + moveDirection * 0.2f)  * 50f;
         }
     }
     
@@ -73,12 +69,15 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.GetContact(0).normal)
+    }
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
 
-        Vector3 pos = RelativeContactOrigin;
-        Gizmos.DrawLine(pos, pos + transform.TransformDirection(Vector3.left) * wallContactLength);
-        Gizmos.DrawLine(pos, pos + transform.TransformDirection(Vector3.right) * wallContactLength);
+        Gizmos.DrawLine(transform.position, transform.position + transform.TransformDirection(Vector3.down) * wallContactLength);
     }
 }
