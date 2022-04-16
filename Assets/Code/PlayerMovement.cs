@@ -2,82 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    public float walkingSpeed = 5f;
-    public float runningSpeed = 10f;
-    public float jumpSpeed = 5f;
-    public float mass = 20f;
-    public float wallContactLength = 0.5f;
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private LayerMask floorMask;
     private CharacterController characterController;
-    private Rigidbody rb;
-    private Vector3 moveDirection = Vector3.zero;
-    private bool isGrounded;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
-        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        CalculateMovementFromInputs();
-        CalculateGravity();
-                
-        if (characterController.enabled)
-            characterController.Move(moveDirection * Time.deltaTime);
-        else if (Physics.Linecast(transform.position, transform.position + transform.TransformDirection(Vector3.down) * wallContactLength, LayerMask.GetMask("Wall")))
-        {
-            characterController.enabled = true;
-            rb.isKinematic = true;
-        }
-    }
+        float v = Input.GetAxisRaw("Vertical");
+        float h = Input.GetAxisRaw("Horizontal");
 
+        Vector3 direction = new Vector3(h, 0f, v) * speed;
+        direction = Vector3.ClampMagnitude(direction, speed);
 
-    private void CalculateMovementFromInputs()
-    {
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
+        characterController.Move(direction * Time.deltaTime);
 
-        bool isRunning = Input.GetButton("Sprint");
-        float speed = isRunning ? runningSpeed : walkingSpeed;
-
-        float curSpeedX = speed * Input.GetAxisRaw("Vertical");
-        float curSpeedY = speed * Input.GetAxisRaw("Horizontal");
-
-        moveDirection = forward * curSpeedX + new Vector3(0f, moveDirection.y, 0f) + right * curSpeedY;
-        
-        if (Input.GetButton("Jump") && characterController.isGrounded)
-        {
-            //moveDirection.y = jumpSpeed;
-            characterController.enabled = false;
-            rb.isKinematic = false;
-            rb.velocity = (Vector3.up + moveDirection * 0.2f)  * 50f;
-        }
-    }
-    
-    private void CalculateGravity()
-    {
-        if (!characterController.isGrounded)
-        {
-            moveDirection.y -= mass * Time.deltaTime;
-        }
-        else if (moveDirection.y < 0f)
-        {
-            moveDirection.y = 0f;
-        }
-    }
-
-    void OnCollisionEnter(Collision col)
-    {
-        if (col.GetContact(0).normal)
-    }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-
-        Gizmos.DrawLine(transform.position, transform.position + transform.TransformDirection(Vector3.down) * wallContactLength);
+        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+		RaycastHit floorHit;
+		if (Physics.Raycast(camRay, out floorHit, Mathf.Infinity, floorMask.value))
+		{
+            Debug.Log(floorHit.point);
+            transform.LookAt(floorHit.point);
+		}
     }
 }
