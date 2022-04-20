@@ -7,6 +7,7 @@ public class ItemData : ScriptableObject
 {
     [SerializeField] private string _name;
     [SerializeField] private Sprite _sprite;
+    [SerializeField] private GameObject _prefab;
 
     public new string name
     {
@@ -18,5 +19,11 @@ public class ItemData : ScriptableObject
     {
         get => _sprite;
         private set => _sprite = value;
+    }
+
+    public GameObject prefab
+    {
+        get => _prefab;
+        private set => _prefab = value;
     }
 }

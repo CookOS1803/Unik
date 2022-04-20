@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _name: Mana Potion
   _sprite: {fileID: 21300000, guid: a144497cb5477af448d64a1c990bc019, type: 3}
+  _prefab: {fileID: 197236, guid: 4fc855fb7bf094a0891967175e5bdb17, type: 3}

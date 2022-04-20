@@ -5,12 +5,19 @@ using UnityEngine;
 public class Inventory : IEnumerable
 {
     private Item[] items;
+    public System.EventHandler onChange;
     
     public int size => items.Length;
     public Item this[int i]
     {
         get => items[i];
-        set => items[i] = value;
+        set
+        {
+            items[i] = value;
+
+            if (onChange != null)
+                onChange(this, new System.EventArgs());
+        }
     }
 
     public Inventory()
@@ -25,6 +32,8 @@ public class Inventory : IEnumerable
             if (items[i] == null)
             {
                 items[i] = newItem;
+                if (onChange != null)
+                    onChange(this, new System.EventArgs());
                 return;
             }
         }
@@ -46,6 +55,9 @@ public class Inventory : IEnumerable
         Item tempItem = items[first];
         items[first] = items[second];
         items[second] = tempItem;
+
+        if (onChange != null)
+            onChange(this, new System.EventArgs());
     }
     
     public IEnumerator GetEnumerator()

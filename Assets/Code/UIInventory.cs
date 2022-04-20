@@ -18,6 +18,7 @@ public class UIInventory : MonoBehaviour
         inventory.Add(new Item(ItemAssets.assets[0]));
         inventory[4] = new Item(ItemAssets.assets[1]);
         RefreshInventory();
+        inventory.onChange += (object sender, System.EventArgs e) => RefreshInventory();
     }
 
     public void RefreshInventory()

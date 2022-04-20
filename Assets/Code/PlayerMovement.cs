@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -10,17 +11,20 @@ public class PlayerMovement : MonoBehaviour
     private PlayerAnimator playerAnimator;
     private Vector3 moveDirection;
     private bool canMove = true;
-    private Inventory inventory;
+    private Inventory _inventory;
     private UIInventory uiInventory;
+    private float verticalAcceleration = 0f;
+
+    public Inventory inventory => _inventory;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         playerAnimator = GetComponent<PlayerAnimator>();
 
-        inventory = new Inventory();
+        _inventory = new Inventory();
         uiInventory = GameObject.FindWithTag("PlayerInventory").GetComponent<UIInventory>();
-        uiInventory.SetInventory(inventory);
+        uiInventory.SetInventory(_inventory);
     }
 
     void Update()
@@ -35,7 +39,22 @@ public class PlayerMovement : MonoBehaviour
                canMove = false;
                playerAnimator.PlayAttack(() => canMove = true);
             }
-        }                
+        }           
+
+        CalculateGravity();
+    }
+
+    private void CalculateGravity()
+    {
+        if (characterController.isGrounded)
+        {
+            verticalAcceleration = 0f;
+        }
+        else
+        {
+            verticalAcceleration -= 9.81f * Time.deltaTime * Time.deltaTime;
+            characterController.Move(new Vector3(0f, verticalAcceleration, 0f));
+        }
     }
 
     private void Move()
