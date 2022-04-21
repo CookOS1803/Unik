@@ -6,13 +6,13 @@ public class ItemPickable : MonoBehaviour
 {
     [SerializeField] private ItemData data;
 
-    void OnTriggerEnter(Collider other)
+    public Item GetItem()
     {
-        if (other.CompareTag("Player"))
-        {
-            other.GetComponent<PlayerMovement>().inventory.Add(new Item(data));
+        return new Item(data);
+    }
 
-            Destroy(gameObject);
-        }
+    public void DestroySelf()
+    {
+        Destroy(gameObject);
     }
 }

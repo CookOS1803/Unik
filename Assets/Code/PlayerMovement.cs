@@ -8,6 +8,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private LayerMask floorMask;
+    [SerializeField] private LayerMask itemMask;
+    [SerializeField] private float itemPickupRadius = 5f;
     [SerializeField, Range(0f, 1f)] private float strafeDot = 0.85f;
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
@@ -35,21 +37,38 @@ public class PlayerMovement : MonoBehaviour
         {
             Move();
             Turn();
+            Attack();
 
-            PointerEventData p = new PointerEventData(EventSystem.current);
-            p.position = Input.mousePosition;
-            List<RaycastResult> list = new List<RaycastResult>();
+            Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
 
-            EventSystem.current.RaycastAll(p, list);
-
-            if (list.Count == 0 && Input.GetButtonDown("Fire1"))
+            if (Physics.OverlapSphere(transform.position, itemPickupRadius, itemMask.value).Length != 0)
             {
-               canMove = false;
-               StartCoroutine(playerAnimator.Attacking(() => canMove = true));
+                if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetKeyDown(KeyCode.E))
+                {
+                    var pickable = hit.collider.GetComponent<ItemPickable>();
+                    inventory.Add(pickable.GetItem());
+                    pickable.DestroySelf();
+                }
             }
-        }           
-        
+        }
+
         CalculateGravity();
+    }
+
+    private void Attack()
+    {
+        PointerEventData p = new PointerEventData(EventSystem.current);
+        p.position = Input.mousePosition;
+        List<RaycastResult> list = new List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(p, list);
+
+        if (list.Count == 0 && Input.GetButtonDown("Fire1"))
+        {
+            canMove = false;
+            StartCoroutine(playerAnimator.Attacking(() => canMove = true));
+        }
     }
 
     private void CalculateGravity()
@@ -76,7 +95,7 @@ public class PlayerMovement : MonoBehaviour
         characterController.Move(moveDirection * speed * Time.deltaTime);
         
         playerAnimator.AnimateMovement(moveDirection);
-    }  
+    } 
 
     private void Turn()
     {
@@ -96,6 +115,8 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.color = Color.blue;
 
         Gizmos.DrawRay(transform.position, moveDirection);
+
+        Gizmos.DrawWireSphere(transform.position, itemPickupRadius);
 
         Gizmos.color = Color.red;
 
