@@ -59,7 +59,7 @@ public class Inventory : IEnumerable
         if (onChange != null)
             onChange(this, new System.EventArgs());
     }
-    
+
     public IEnumerator GetEnumerator()
     {
         foreach (Item i in items)

@@ -31,6 +31,7 @@ public class ItemSlot : MonoBehaviour, IDropHandler
 
         i.item = item;
         i.index = index;
+        i.inventory = uiInventory.inventory;
     }
 
     public void OnDrop(PointerEventData eventData)

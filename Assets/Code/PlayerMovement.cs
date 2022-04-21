@@ -44,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (Physics.OverlapSphere(transform.position, itemPickupRadius, itemMask.value).Length != 0)
             {
-                if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetKeyDown(KeyCode.E))
+                if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetButtonDown("Action"))
                 {
                     var pickable = hit.collider.GetComponent<ItemPickable>();
                     inventory.Add(pickable.GetItem());

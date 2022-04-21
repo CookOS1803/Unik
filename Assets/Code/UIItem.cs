@@ -12,6 +12,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     private Image image;
     private Vector2 initialPosition;
     public int index { get; set; }
+    public Inventory inventory { get; set; }
 
     public Item item
     {
@@ -24,7 +25,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     }
 
     void Awake()
-    {        
+    {   
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         image = GetComponent<Image>();
@@ -45,6 +46,35 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        var p = new PointerEventData(EventSystem.current);
+        p.position = Input.mousePosition;
+        var list = new List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(p, list);
+
+        if (list.Count == 0)
+        {
+            var player = GameObject.FindWithTag("Player").transform;
+
+            RaycastHit hit;
+            Vector3 spawnPosition;
+
+            Debug.DrawRay(player.position + player.up, player.forward + player.up);
+            if (Physics.Raycast(player.position + player.up, player.forward + player.up, out hit, 1f))
+            {
+                Debug.Log("da");
+                spawnPosition = hit.point;
+            }
+            else
+            {
+                spawnPosition = player.position + player.forward + player.up;
+            }
+
+            Instantiate(item.data.prefab, spawnPosition, Quaternion.identity);
+            inventory[index] = null;
+            return;
+        }
+
         canvasGroup.blocksRaycasts = true;
         rectTransform.anchoredPosition = initialPosition;
     }
