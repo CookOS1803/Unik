@@ -2,14 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAnimator : MonoBehaviour
+public class PlayerAnimator
 {
-    [SerializeField, Range(0f, 1f)] private float strafeDot = 0.85f;
     private Animator animator;
+    private Transform transform;
+    private float strafeDot;
     
-    void Start()
+    public PlayerAnimator(Transform playerTransform, float newStrafeDot)
     {
-        animator = GetComponent<Animator>();        
+        transform = playerTransform;
+        animator = transform.GetComponent<Animator>();
+        strafeDot = newStrafeDot;
     }
 
     public void AnimateMovement(Vector3 moveDirection)
@@ -46,12 +49,7 @@ public class PlayerAnimator : MonoBehaviour
         }
     }
 
-    public void PlayAttack(System.Action action)
-    {
-        StartCoroutine(Attacking(action));
-    }
-
-    IEnumerator Attacking(System.Action action)
+    public IEnumerator Attacking(System.Action action)
     {
         animator.SetTrigger("Attack");
     
@@ -60,17 +58,5 @@ public class PlayerAnimator : MonoBehaviour
         yield return new WaitWhile(() => animator.IsInTransition(0));
 
         action();
-    }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-
-        float angle = Mathf.Rad2Deg * Mathf.Acos(strafeDot);
-
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, angle, 0f) * transform.forward);
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, -angle, 0f) * transform.forward);
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, 180f + angle, 0f) * transform.forward);
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, 180f - angle, 0f) * transform.forward);
     }
 }

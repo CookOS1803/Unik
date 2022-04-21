@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class UIInventory : MonoBehaviour
 {
-    private Inventory inventory;
+    public Inventory inventory { get; private set; }
+    [SerializeField] private GameObject itemPrefab;
     
     void Start()
     {
@@ -15,27 +16,28 @@ public class UIInventory : MonoBehaviour
     public void SetInventory(Inventory newInventory)
     {
         inventory = newInventory;
-        inventory.Add(new Item(ItemAssets.assets[0]));
-        inventory[4] = new Item(ItemAssets.assets[1]);
         RefreshInventory();
         inventory.onChange += (object sender, System.EventArgs e) => RefreshInventory();
+
+        for (int i = 0; i < inventory.size; i++)
+        {
+            transform.GetChild(i).GetComponent<ItemSlot>().index = i;
+        }
     }
 
     public void RefreshInventory()
     {
         for (int i = 0; i < inventory.size; i++)
         {
-            Image image = transform.GetChild(i).GetComponent<Image>();
+            ItemSlot slot = transform.GetChild(i).GetComponent<ItemSlot>();
             
             if (inventory[i] == null)
             {
-                image.sprite = null;
-                image.color = new Color(1f, 1f, 1f, 0f);
+                slot.DestroyItem();
             }
             else
             {
-                image.sprite = inventory[i].data.sprite;
-                image.color = new Color(1f, 1f, 1f, 1f);
+                slot.SetItem(itemPrefab, inventory[i]);
             }
         }
     }

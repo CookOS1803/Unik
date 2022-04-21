@@ -1,14 +1,16 @@
-using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private LayerMask floorMask;
-    private CharacterController characterController;
+    [SerializeField, Range(0f, 1f)] private float strafeDot = 0.85f;
     private PlayerAnimator playerAnimator;
+    private CharacterController characterController;
     private Vector3 moveDirection;
     private bool canMove = true;
     private Inventory _inventory;
@@ -20,8 +22,8 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         characterController = GetComponent<CharacterController>();
-        playerAnimator = GetComponent<PlayerAnimator>();
-
+        
+        playerAnimator = new PlayerAnimator(transform, strafeDot);
         _inventory = new Inventory();
         uiInventory = GameObject.FindWithTag("PlayerInventory").GetComponent<UIInventory>();
         uiInventory.SetInventory(_inventory);
@@ -34,13 +36,19 @@ public class PlayerMovement : MonoBehaviour
             Move();
             Turn();
 
-            if (Input.GetButtonDown("Fire1"))
+            PointerEventData p = new PointerEventData(EventSystem.current);
+            p.position = Input.mousePosition;
+            List<RaycastResult> list = new List<RaycastResult>();
+
+            EventSystem.current.RaycastAll(p, list);
+
+            if (list.Count == 0 && Input.GetButtonDown("Fire1"))
             {
                canMove = false;
-               playerAnimator.PlayAttack(() => canMove = true);
+               StartCoroutine(playerAnimator.Attacking(() => canMove = true));
             }
         }           
-
+        
         CalculateGravity();
     }
 
@@ -88,5 +96,14 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.color = Color.blue;
 
         Gizmos.DrawRay(transform.position, moveDirection);
+
+        Gizmos.color = Color.red;
+
+        float angle = Mathf.Rad2Deg * Mathf.Acos(strafeDot);
+
+        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, angle, 0f) * transform.forward);
+        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, -angle, 0f) * transform.forward);
+        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, 180f + angle, 0f) * transform.forward);
+        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, 180f - angle, 0f) * transform.forward);
     }
 }

@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class Item
 {
-    private ItemData _data;
-    public ItemData data => _data;
+    public ItemData data { get; private set; }
 
     public Item(ItemData newData)
     {
-        _data = newData;
+        data = newData;
     }
 }
