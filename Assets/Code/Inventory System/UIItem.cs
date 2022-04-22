@@ -11,6 +11,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     private CanvasGroup canvasGroup;
     private Image image;
     private Vector2 initialPosition;
+    public Transform parent { get; private set; }
     public int index { get; set; }
     public Inventory inventory { get; set; }
 
@@ -29,6 +30,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         image = GetComponent<Image>();
+        parent = transform.parent;
 
         initialPosition = rectTransform.anchoredPosition;
     }
@@ -36,6 +38,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        transform.SetParent(parent.parent);
         canvasGroup.blocksRaycasts = false;
     }
 
@@ -52,6 +55,8 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             rectTransform.anchoredPosition = initialPosition;
             return;
         }
+
+        transform.SetParent(parent);
 
         var player = GameObject.FindWithTag("Player").transform;
 

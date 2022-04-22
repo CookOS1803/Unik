@@ -36,6 +36,9 @@ public class ItemSlot : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
-        uiInventory.inventory.SwapSlots(index, eventData.pointerDrag.GetComponent<UIItem>().index);
+        var item = eventData.pointerDrag.GetComponent<UIItem>();
+
+        item.transform.SetParent(item.parent);
+        uiInventory.inventory.SwapSlots(index, item.index);
     }
 }
