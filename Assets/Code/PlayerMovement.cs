@@ -10,14 +10,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask floorMask;
     [SerializeField] private LayerMask itemMask;
     [SerializeField] private float itemPickupRadius = 5f;
-    [SerializeField, Range(0f, 1f)] private float strafeDot = 0.85f;
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
     private Vector3 moveDirection;
-    private bool canMove = true;
     private Inventory _inventory;
     private UIInventory uiInventory;
     private float verticalAcceleration = 0f;
+    public bool canMove { get; set; } = true;
 
     public Inventory inventory => _inventory;
 
@@ -25,7 +24,7 @@ public class PlayerMovement : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         
-        playerAnimator = new PlayerAnimator(transform, strafeDot);
+        playerAnimator = new PlayerAnimator(transform);
         _inventory = new Inventory();
         uiInventory = GameObject.FindWithTag("PlayerInventory").GetComponent<UIInventory>();
         uiInventory.SetInventory(_inventory);
@@ -66,8 +65,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (list.Count == 0 && Input.GetButtonDown("Fire1"))
         {
-            canMove = false;
-            StartCoroutine(playerAnimator.Attacking(() => canMove = true));
+            playerAnimator.Attack();
         }
     }
 
@@ -117,14 +115,5 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawRay(transform.position, moveDirection);
 
         Gizmos.DrawWireSphere(transform.position, itemPickupRadius);
-
-        Gizmos.color = Color.red;
-
-        float angle = Mathf.Rad2Deg * Mathf.Acos(strafeDot);
-
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, angle, 0f) * transform.forward);
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, -angle, 0f) * transform.forward);
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, 180f + angle, 0f) * transform.forward);
-        Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, 180f - angle, 0f) * transform.forward);
     }
 }

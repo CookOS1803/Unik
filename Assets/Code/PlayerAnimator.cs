@@ -6,57 +6,25 @@ public class PlayerAnimator
 {
     private Animator animator;
     private Transform transform;
-    private float strafeDot;
     
-    public PlayerAnimator(Transform playerTransform, float newStrafeDot)
+    public PlayerAnimator(Transform playerTransform)
     {
         transform = playerTransform;
         animator = transform.GetComponent<Animator>();
-        strafeDot = newStrafeDot;
     }
 
     public void AnimateMovement(Vector3 moveDirection)
     {
-        if (moveDirection == Vector3.zero)
-        {
-            animator.SetBool("IsMovingForward", false);
-            animator.SetBool("IsMovingBackwards", false);
-            animator.SetBool("IsMovingLeft", false);
-            animator.SetBool("IsMovingRight", false);
-
-            return;
-        }
-
-        float dot = Vector3.Dot(transform.forward, moveDirection);
+        float angle = Vector3.SignedAngle(Vector3.forward, transform.forward, Vector3.up);
+        moveDirection = Quaternion.Euler(0f, -angle, 0f) * moveDirection;
         
-        if (Mathf.Abs(dot) < strafeDot)
-        {
-            bool isLeft = Vector3.SignedAngle(transform.forward, moveDirection, transform.up) < 0f;
-
-            animator.SetBool("IsMovingForward", false);
-            animator.SetBool("IsMovingBackwards", false);
-            animator.SetBool("IsMovingLeft", isLeft);
-            animator.SetBool("IsMovingRight", !isLeft);
-        }
-        else
-        {
-            bool isForward = dot > 0f;
-
-            animator.SetBool("IsMovingForward", isForward);
-            animator.SetBool("IsMovingBackwards", !isForward);
-            animator.SetBool("IsMovingLeft", false);
-            animator.SetBool("IsMovingRight", false);
-        }
+        animator.SetBool("isMoving", moveDirection != Vector3.zero);
+        animator.SetFloat("forward", moveDirection.z, 0.1f, Time.deltaTime);
+        animator.SetFloat("right", moveDirection.x, 0.1f, Time.deltaTime);
     }
 
-    public IEnumerator Attacking(System.Action action)
+    public void Attack()
     {
         animator.SetTrigger("Attack");
-    
-        yield return new WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"));
-        yield return new WaitWhile(() => animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"));
-        yield return new WaitWhile(() => animator.IsInTransition(0));
-
-        action();
     }
 }
