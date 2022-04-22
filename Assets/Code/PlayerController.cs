@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using Zenject;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private LayerMask floorMask;
@@ -13,21 +13,17 @@ public class PlayerMovement : MonoBehaviour
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
     private Vector3 moveDirection;
-    private Inventory _inventory;
-    private UIInventory uiInventory;
+    [Inject] private UIInventory uiInventory;
     private float verticalAcceleration = 0f;
     public bool canMove { get; set; } = true;
 
-    public Inventory inventory => _inventory;
+    [Inject] public Inventory inventory { get; private set; }
 
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
-        
+        characterController = GetComponent<CharacterController>();        
         playerAnimator = new PlayerAnimator(transform);
-        _inventory = new Inventory();
-        uiInventory = GameObject.FindWithTag("PlayerInventory").GetComponent<UIInventory>();
-        uiInventory.SetInventory(_inventory);
+        uiInventory.SetInventory(inventory);
     }
 
     void Update()
@@ -37,33 +33,31 @@ public class PlayerMovement : MonoBehaviour
             Move();
             Turn();
             Attack();
-
-            Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.OverlapSphere(transform.position, itemPickupRadius, itemMask.value).Length != 0)
-            {
-                if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetButtonDown("Action"))
-                {
-                    var pickable = hit.collider.GetComponent<ItemPickable>();
-                    inventory.Add(pickable.GetItem());
-                    pickable.DestroySelf();
-                }
-            }
+            PickItem();
         }
 
         CalculateGravity();
     }
 
+    private void PickItem()
+    {
+        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.OverlapSphere(transform.position, itemPickupRadius, itemMask.value).Length != 0)
+        {
+            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetButtonDown("Action"))
+            {
+                var pickable = hit.collider.GetComponent<ItemPickable>();
+                inventory.Add(pickable.GetItem());
+                pickable.DestroySelf();
+            }
+        }
+    }
+
     private void Attack()
     {
-        PointerEventData p = new PointerEventData(EventSystem.current);
-        p.position = Input.mousePosition;
-        List<RaycastResult> list = new List<RaycastResult>();
-
-        EventSystem.current.RaycastAll(p, list);
-
-        if (list.Count == 0 && Input.GetButtonDown("Fire1"))
+        if (!UserRaycaster.IsBlockedByUI() && Input.GetButtonDown("Fire1"))
         {
             playerAnimator.Attack();
         }

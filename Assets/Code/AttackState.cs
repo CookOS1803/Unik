@@ -6,11 +6,11 @@ public class AttackState : StateMachineBehaviour
 {
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        animator.GetComponent<PlayerMovement>().canMove = false;
+        animator.GetComponent<PlayerController>().canMove = false;
     }
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        animator.GetComponent<PlayerMovement>().canMove = true;
+        animator.GetComponent<PlayerController>().canMove = true;
     }
 }

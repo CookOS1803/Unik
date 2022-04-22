@@ -15,10 +15,16 @@ public class PlayerAnimator
 
     public void AnimateMovement(Vector3 moveDirection)
     {
+        if (moveDirection == Vector3.zero)
+        {
+            animator.SetBool("isMoving", false);
+            return;
+        }
+
         float angle = Vector3.SignedAngle(Vector3.forward, transform.forward, Vector3.up);
         moveDirection = Quaternion.Euler(0f, -angle, 0f) * moveDirection;
         
-        animator.SetBool("isMoving", moveDirection != Vector3.zero);
+        animator.SetBool("isMoving", true);
         animator.SetFloat("forward", moveDirection.z, 0.1f, Time.deltaTime);
         animator.SetFloat("right", moveDirection.x, 0.1f, Time.deltaTime);
     }

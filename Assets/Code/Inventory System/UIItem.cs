@@ -46,36 +46,29 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        var p = new PointerEventData(EventSystem.current);
-        p.position = Input.mousePosition;
-        var list = new List<RaycastResult>();
-
-        EventSystem.current.RaycastAll(p, list);
-
-        if (list.Count == 0)
-        {
-            var player = GameObject.FindWithTag("Player").transform;
-
-            RaycastHit hit;
-            Vector3 spawnPosition;
-
-            Debug.DrawRay(player.position + player.up, player.forward + player.up);
-            if (Physics.Raycast(player.position + player.up, player.forward + player.up, out hit, 1f))
-            {
-                Debug.Log("da");
-                spawnPosition = hit.point;
-            }
-            else
-            {
-                spawnPosition = player.position + player.forward + player.up;
-            }
-
-            Instantiate(item.data.prefab, spawnPosition, Quaternion.identity);
-            inventory[index] = null;
+        if (UserRaycaster.IsBlockedByUI())
+        {            
+            canvasGroup.blocksRaycasts = true;
+            rectTransform.anchoredPosition = initialPosition;
             return;
         }
 
-        canvasGroup.blocksRaycasts = true;
-        rectTransform.anchoredPosition = initialPosition;
+        var player = GameObject.FindWithTag("Player").transform;
+
+        RaycastHit hit;
+        Vector3 spawnPosition;
+
+        if (Physics.Raycast(player.position + player.up, player.forward + player.up, out hit, 1f))
+        {
+            spawnPosition = hit.point;
+        }
+        else
+        {
+            spawnPosition = player.position + player.forward + player.up;
+        }
+
+        Instantiate(item.data.prefab, spawnPosition, Quaternion.identity);
+        inventory[index] = null;
+
     }
 }
