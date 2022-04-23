@@ -2791,6 +2791,7 @@ GameObject:
   - component: {fileID: 95337640609337054}
   - component: {fileID: 1597108632}
   - component: {fileID: 1597108631}
+  - component: {fileID: 383398072}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2872,7 +2873,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   itemPickupRadius: 1.68
-  strafeDot: 0.85
+--- !u!114 &383398072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742385099753426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d624c8a2c9dd564c9c9b2114c510dfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
 --- !u!1 &1751251983972536
 GameObject:
   m_ObjectHideFlags: 0
@@ -3596,6 +3610,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4181178952265908}
+  - component: {fileID: 1153840438}
   m_Layer: 0
   m_Name: Weapon_end
   m_TagString: Untagged
@@ -3617,6 +3632,19 @@ Transform:
   m_Father: {fileID: 4803080711584408}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1153840438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888321792991528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb170944231147846badb43069660d00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageRadius: 0.14
 --- !u!1 &1892690722996672
 GameObject:
   m_ObjectHideFlags: 0

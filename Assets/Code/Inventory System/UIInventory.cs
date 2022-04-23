@@ -9,6 +9,7 @@ public class UIInventory : MonoBehaviour
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private Color defaultSlotColor;
     [SerializeField] private Color selectedSlotColor;
+    private RawImage selectedSlotImage;
     
     void Start()
     {
@@ -19,7 +20,8 @@ public class UIInventory : MonoBehaviour
             child.GetComponent<RawImage>().color = defaultSlotColor;
         }
 
-        transform.GetChild(inventory.selectedSlot).GetComponent<RawImage>().color = selectedSlotColor;
+        selectedSlotImage = transform.GetChild(inventory.selectedSlot).GetComponent<RawImage>();
+        selectedSlotImage.color = selectedSlotColor;
     }
 
     public void SetInventory(Inventory newInventory)
@@ -27,6 +29,7 @@ public class UIInventory : MonoBehaviour
         inventory = newInventory;
         RefreshInventory();
         inventory.onChange += (object sender, System.EventArgs e) => RefreshInventory();
+        inventory.onSlotSelection += (object sender, System.EventArgs e) => SelectSlot();
     }
 
     public void RefreshInventory()
@@ -46,14 +49,11 @@ public class UIInventory : MonoBehaviour
         }
     }
 
-    public void SelectSlot(int index)
+    public void SelectSlot()
     {
-        if (index == inventory.selectedSlot)
-            return;
-
-        transform.GetChild(inventory.selectedSlot).GetComponent<RawImage>().color = defaultSlotColor;
-        transform.GetChild(index).GetComponent<RawImage>().color = selectedSlotColor;
-
-        inventory.selectedSlot = index;
+        selectedSlotImage.color = defaultSlotColor;
+        
+        selectedSlotImage = transform.GetChild(inventory.selectedSlot).GetComponent<RawImage>();
+        selectedSlotImage.color = selectedSlotColor;
     }
 }

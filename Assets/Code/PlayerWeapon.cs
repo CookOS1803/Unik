@@ -5,15 +5,35 @@ using UnityEngine;
 public class PlayerWeapon : MonoBehaviour
 {
     [SerializeField] private float damageRadius = 0.5f;
+    private bool isDamaging = false;
 
-    public void DoDamage()
+    public void StartDamaging()
     {
-        Instantiate(ItemAssets.assets[0].prefab, transform.position, Quaternion.identity);
+        isDamaging = true;
+    }
+
+    public void StopDamaging()
+    {
+        isDamaging = false;
+    }
+
+    void Update()
+    {
+        if (isDamaging)
+        {
+            var cols = Physics.OverlapSphere(transform.position, damageRadius);
+
+            if (cols.Length != 0)
+            {
+                Debug.Log(cols[0].name);
+                StopDamaging();
+            }
+        }
     }
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
+        Gizmos.color = isDamaging ? Color.green : Color.red;
 
         Gizmos.DrawWireSphere(transform.position, damageRadius);
     }

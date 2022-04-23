@@ -5,11 +5,23 @@ using UnityEngine;
 public class Inventory : IEnumerable
 {
     private Item[] items;
+    private int _selectedSlot = 0;
     public System.EventHandler onChange;
-    public int selectedSlot { get; set; } = 0;
-    public Transform owner { get; set; }
+    public System.EventHandler onSlotSelection;
     
+    public Transform owner { get; set; }
     public int size => items.Length;
+    public int selectedSlot
+    {
+        get => _selectedSlot;
+        set
+        {
+            _selectedSlot = value;
+
+            if (onSlotSelection != null)
+                onSlotSelection(this, new System.EventArgs());
+        }
+    }
     public Item this[int i]
     {
         get => items[i];
@@ -80,9 +92,7 @@ public class Inventory : IEnumerable
         if (items[selectedSlot] == null)
             return;
         
-        var action = items[selectedSlot].data.action;
-        Debug.Log(action);
-        action.Use(owner);
+        items[selectedSlot].data.action.Use(owner);
         items[selectedSlot] = null;
 
         if (onChange != null)

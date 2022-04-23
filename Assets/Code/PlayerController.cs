@@ -38,12 +38,6 @@ public class PlayerController : MonoBehaviour
         };
     }
 
-    public void OnAttackEvent()
-    {
-        weapon.DoDamage();
-        Debug.Log("AAA");
-    }
-
     void Update()
     {
         if (canMove)
@@ -52,68 +46,13 @@ public class PlayerController : MonoBehaviour
             Turn();
             Attack();
             PickItem();
-
-            if (Input.GetButtonDown("Fire2"))
-            {
-                inventory.UseItem();
-            }
+            UseItem();
         }
 
         CalculateGravity();
         SelectItemSlot();
     }
 
-    private void SelectItemSlot()
-    {
-        for (int i = 0; i < numberCodes.Length; i++)
-        {
-            if (Input.GetKeyDown(numberCodes[i]))
-            {
-                uiInventory.SelectSlot(i);
-                return;
-            }
-        }
-    }
-
-    private void PickItem()
-    {
-        if (inventory.IsFull())
-            return;
-
-        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.OverlapSphere(transform.position, itemPickupRadius, itemMask.value).Length != 0)
-        {
-            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetButtonDown("Action"))
-            {
-                var pickable = hit.collider.GetComponent<ItemPickable>();
-                inventory.Add(pickable.GetItem());
-                pickable.DestroySelf();
-            }
-        }
-    }
-
-    private void Attack()
-    {
-        if (!UserRaycaster.IsBlockedByUI() && Input.GetButtonDown("Fire1"))
-        {
-            playerAnimator.Attack();
-        }
-    }
-
-    private void CalculateGravity()
-    {
-        if (characterController.isGrounded)
-        {
-            verticalAcceleration = 0f;
-        }
-        else
-        {
-            verticalAcceleration -= 9.81f * Time.deltaTime * Time.deltaTime;
-            characterController.Move(new Vector3(0f, verticalAcceleration, 0f));
-        }
-    }
 
     private void Move()
     {
@@ -139,6 +78,93 @@ public class PlayerController : MonoBehaviour
             hitPoint.y = transform.position.y;
             transform.LookAt(hitPoint);
         }
+    }
+
+    private void Attack()
+    {
+        if (!UserRaycaster.IsBlockedByUI() && Input.GetButtonDown("Fire1"))
+        {
+            playerAnimator.Attack();
+        }
+    }    
+    
+    private void PickItem()
+    {
+        if (inventory.IsFull())
+            return;
+
+        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.OverlapSphere(transform.position, itemPickupRadius, itemMask.value).Length != 0)
+        {
+            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetButtonDown("Action"))
+            {
+                var pickable = hit.collider.GetComponent<ItemPickable>();
+                inventory.Add(pickable.GetItem());
+                pickable.DestroySelf();
+            }
+        }
+    }
+
+    private void UseItem()
+    {
+        if (Input.GetButtonDown("Fire2"))
+        {
+            inventory.UseItem();
+        }
+    }
+
+    private void CalculateGravity()
+    {
+        if (characterController.isGrounded)
+        {
+            verticalAcceleration = 0f;
+        }
+        else
+        {
+            verticalAcceleration -= 9.81f * Time.deltaTime * Time.deltaTime;
+            characterController.Move(new Vector3(0f, verticalAcceleration, 0f));
+        }
+    }
+
+    private void SelectItemSlot()
+    {
+        float wheel = Input.GetAxis("Mouse ScrollWheel");
+
+        if (wheel == 0)
+        {
+            for (int i = 0; i < numberCodes.Length; i++)
+            {
+                if (Input.GetKeyDown(numberCodes[i]))
+                {
+                    inventory.selectedSlot = i;
+                    return;
+                }
+            }
+
+            return;
+        }
+
+        if (wheel > 0)
+        {
+            inventory.selectedSlot = (inventory.selectedSlot + 1) % inventory.size;
+        }
+        else
+        {
+            inventory.selectedSlot = (inventory.size + inventory.selectedSlot - 1) % inventory.size;
+        }
+
+    }
+
+    public void OnAttackStartEvent()
+    {
+        weapon.StartDamaging();
+    }
+
+    public void OnAttackEndEvent()
+    {
+        weapon.StopDamaging();
     }
 
     void OnDrawGizmos()
