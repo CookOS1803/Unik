@@ -6,6 +6,8 @@ public class Inventory : IEnumerable
 {
     private Item[] items;
     public System.EventHandler onChange;
+    public int selectedSlot { get; set; } = 0;
+    public Transform owner { get; set; }
     
     public int size => items.Length;
     public Item this[int i]
@@ -71,5 +73,30 @@ public class Inventory : IEnumerable
     public bool HasIndex(int i)
     {
         return i >= 0 && i < items.Length;
+    }
+
+    public void UseItem()
+    {
+        if (items[selectedSlot] == null)
+            return;
+        
+        var action = items[selectedSlot].data.action;
+        Debug.Log(action);
+        action.Use(owner);
+        items[selectedSlot] = null;
+
+        if (onChange != null)
+            onChange(this, new System.EventArgs());
+    }
+
+    public bool IsFull()
+    {
+        foreach (var i in items)
+        {
+            if (i == null)
+                return false;
+        }
+
+        return true;
     }
 }

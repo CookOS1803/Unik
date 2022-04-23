@@ -15,3 +15,4 @@ MonoBehaviour:
   _name: Health Potion
   _sprite: {fileID: 21300000, guid: ad759983cefb20c488981808c1084f5a, type: 3}
   _prefab: {fileID: 173500, guid: fb5a9652227c545d98a413cd73b80b69, type: 3}
+  _action: {fileID: 11400000, guid: a414964e3d8cbe44697506c7fa5f6092, type: 2}

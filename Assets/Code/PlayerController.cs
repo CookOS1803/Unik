@@ -12,18 +12,36 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float itemPickupRadius = 5f;
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
+    private PlayerWeapon weapon;
     private Vector3 moveDirection;
     [Inject] private UIInventory uiInventory;
     private float verticalAcceleration = 0f;
+    private KeyCode[] numberCodes;
     public bool canMove { get; set; } = true;
 
     [Inject] public Inventory inventory { get; private set; }
 
     void Start()
     {
-        characterController = GetComponent<CharacterController>();        
+        characterController = GetComponent<CharacterController>();
         playerAnimator = new PlayerAnimator(transform);
+        weapon = GetComponentInChildren<PlayerWeapon>();
+        inventory.owner = transform;
         uiInventory.SetInventory(inventory);
+
+        numberCodes = new KeyCode[]
+        {
+            KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3,
+            KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6,
+            KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9,
+            KeyCode.Alpha0
+        };
+    }
+
+    public void OnAttackEvent()
+    {
+        weapon.DoDamage();
+        Debug.Log("AAA");
     }
 
     void Update()
@@ -34,13 +52,34 @@ public class PlayerController : MonoBehaviour
             Turn();
             Attack();
             PickItem();
+
+            if (Input.GetButtonDown("Fire2"))
+            {
+                inventory.UseItem();
+            }
         }
 
         CalculateGravity();
+        SelectItemSlot();
+    }
+
+    private void SelectItemSlot()
+    {
+        for (int i = 0; i < numberCodes.Length; i++)
+        {
+            if (Input.GetKeyDown(numberCodes[i]))
+            {
+                uiInventory.SelectSlot(i);
+                return;
+            }
+        }
     }
 
     private void PickItem()
     {
+        if (inventory.IsFull())
+            return;
+
         Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 

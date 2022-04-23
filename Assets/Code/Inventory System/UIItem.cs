@@ -49,14 +49,14 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        transform.SetParent(parent);
+        
         if (UserRaycaster.IsBlockedByUI())
         {            
             canvasGroup.blocksRaycasts = true;
             rectTransform.anchoredPosition = initialPosition;
             return;
         }
-
-        transform.SetParent(parent);
 
         var player = GameObject.FindWithTag("Player").transform;
 

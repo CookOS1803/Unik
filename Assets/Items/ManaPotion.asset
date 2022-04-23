@@ -15,3 +15,4 @@ MonoBehaviour:
   _name: Mana Potion
   _sprite: {fileID: 21300000, guid: a144497cb5477af448d64a1c990bc019, type: 3}
   _prefab: {fileID: 197236, guid: 4fc855fb7bf094a0891967175e5bdb17, type: 3}
+  _action: {fileID: 11400000, guid: a414964e3d8cbe44697506c7fa5f6092, type: 2}
