@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: ThrowableKnife
   m_EditorClassIdentifier: 
   _name: Throwable Knife
-  _sprite: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+  _sprite: {fileID: 21300000, guid: 7a4f24bf60fcf8340a22503eb4bad58b, type: 3}
   _prefab: {fileID: 110658, guid: a4cd3d5e9967248a69e6203d2ce67874, type: 3}
   _action: {fileID: 11400000, guid: 00021bacd3b6a0f46a46be8e33132d00, type: 2}
