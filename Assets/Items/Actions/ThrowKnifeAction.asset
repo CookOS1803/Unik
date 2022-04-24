@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f2a519485067144c9607a0eab571c23, type: 3}
   m_Name: ThrowKnifeAction
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 110658, guid: a4cd3d5e9967248a69e6203d2ce67874, type: 3}
+  projectilePrefab: {fileID: 6902241515958572956, guid: 99412bc79a25d6d40bec31ff898147d3, type: 3}

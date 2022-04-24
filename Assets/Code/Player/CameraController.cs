@@ -7,11 +7,19 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Transform target;
     [SerializeField] private float smoothing = 1f;
     [SerializeField] private float mouseFactor = 1f;
+    [SerializeField] private float additionalMouseFactor = 10f;
     private Vector3 offset;
+    private float currentMouseFactor;
 
     void Start()
     {
         offset = transform.position - target.position;
+        currentMouseFactor = mouseFactor;
+    }
+
+    void Update()
+    {
+        currentMouseFactor = Input.GetButton("View") ? additionalMouseFactor : mouseFactor;
     }
 
     void LateUpdate()
@@ -25,7 +33,7 @@ public class CameraController : MonoBehaviour
         mousePosition.x -= 0.5f;
         mousePosition.z -= 0.5f;
         
-        Vector3 targetCamPos = target.position + offset + mousePosition * mouseFactor;
+        Vector3 targetCamPos = target.position + offset + mousePosition * currentMouseFactor;
         transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing * Time.deltaTime);
     }
 }

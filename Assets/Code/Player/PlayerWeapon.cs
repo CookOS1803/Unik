@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerWeapon : MonoBehaviour
 {
+    [SerializeField] private int damage = 30;
     [SerializeField] private float damageRadius = 0.5f;
     private bool isDamaging = false;
 
@@ -25,7 +26,11 @@ public class PlayerWeapon : MonoBehaviour
 
             if (cols.Length != 0)
             {
-                Debug.Log(cols[0].name);
+                var health = cols[0].GetComponent<Health>();
+
+                if (health != null)
+                    health.TakeDamage(damage);
+
                 StopDamaging();
             }
         }
