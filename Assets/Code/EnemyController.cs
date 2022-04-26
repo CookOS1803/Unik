@@ -34,7 +34,7 @@ public class EnemyController : MonoBehaviour
         NoticePlayer();
 
         if (AIManager.player != null)
-            agent.SetDestination(AIManager.player.transform.position);
+            agent.SetDestination(AIManager.playerLastKnowPosition);
     }
 
     private void NoticePlayer()
@@ -85,10 +85,7 @@ public class EnemyController : MonoBehaviour
         {
             if (agent.velocity == Vector3.zero)
             {
-                agent.isStopped = true;
-                transform.Rotate(0f, Random.Range(-180f, 180f), 0f);
-                
-                while (AIManager.player == null && seekClock < 1f)
+                while (seekClock < 2f && AIManager.player == null)
                 {
                     seekClock += Time.deltaTime;
 
@@ -97,7 +94,20 @@ public class EnemyController : MonoBehaviour
 
                 seekClock = 0f;
 
-                agent.isStopped = false;
+                if (AIManager.player == null)
+                {
+                    Vector3 randomDirection = Random.insideUnitSphere * 6f;
+                    randomDirection += AIManager.playerLastKnowPosition;
+    
+                    NavMeshHit hit;
+                    NavMesh.SamplePosition(randomDirection, out hit, agent.height * 2, 1);
+                    Vector3 finalPosition = hit.position;
+    
+                    agent.SetDestination(finalPosition);
+    
+                    while (agent.velocity != Vector3.zero && AIManager.player == null)
+                        yield return new WaitForEndOfFrame();
+                }
             }
             else
                 yield return new WaitForEndOfFrame();

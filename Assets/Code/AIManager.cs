@@ -7,10 +7,22 @@ public class AIManager : MonoBehaviour
     [SerializeField, Min(0f)] private float alarmTime = 4f;
     private float alarmClock = 0f;
     private static AIManager instance;
-    public static Transform player { get; private set; }
+    private static Transform _player;
+    public static Vector3 playerLastKnowPosition { get; private set; }
     public static List<EnemyController> enemies { get; private set; }
     public static bool alarm { get; private set; } = false;
     
+    public static Transform player
+    {
+        get => _player;
+        private set
+        {
+            if (_player != null)
+                playerLastKnowPosition = _player.position;
+            
+            _player = value;
+        }
+    }
 
     void Awake()
     {
