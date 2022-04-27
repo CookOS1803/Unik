@@ -27,6 +27,8 @@ public class EnemyController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
 
         AIManager.enemies.Add(this);
+
+        Patrol();
     }
 
     void Update()
@@ -96,15 +98,8 @@ public class EnemyController : MonoBehaviour
 
                 if (AIManager.player == null)
                 {
-                    Vector3 randomDirection = Random.insideUnitSphere * 6f;
-                    randomDirection += AIManager.playerLastKnowPosition;
-    
-                    NavMeshHit hit;
-                    NavMesh.SamplePosition(randomDirection, out hit, agent.height * 2, 1);
-                    Vector3 finalPosition = hit.position;
-    
-                    agent.SetDestination(finalPosition);
-    
+                    GoToRandomPoint();
+
                     while (agent.velocity != Vector3.zero && AIManager.player == null)
                         yield return new WaitForEndOfFrame();
                 }
@@ -112,6 +107,46 @@ public class EnemyController : MonoBehaviour
             else
                 yield return new WaitForEndOfFrame();
         }
+    }
+
+    public void Patrol()
+    {
+        StartCoroutine(Patroling());
+    }
+
+    IEnumerator Patroling()
+    {
+        float waitClock = 0f;
+
+        while (!AIManager.alarm)
+        {
+            agent.SetDestination(patrolPoints[currentPoint].position);
+            currentPoint = (currentPoint + 1) % patrolPoints.Length;
+
+            yield return new WaitWhile(() => agent.velocity == Vector3.zero);
+            yield return new WaitUntil(() => agent.velocity == Vector3.zero || AIManager.alarm);
+
+            while (waitClock < 2f && !AIManager.alarm)
+            {
+                waitClock += Time.deltaTime;
+
+                yield return new WaitForEndOfFrame();
+            }
+
+            waitClock = 0f;
+        }
+    }
+
+    private void GoToRandomPoint()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * 6f;
+        randomDirection += AIManager.playerLastKnowPosition;
+
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, agent.height * 2, 1);
+        Vector3 finalPosition = hit.position;
+
+        agent.SetDestination(finalPosition);
     }
 
     void OnDestroy()

@@ -39,8 +39,6 @@ public class AIManager : MonoBehaviour
     {
         if (alarm)
         {
-            Debug.Log(alarmClock);
-
             if (alarmClock >= alarmTime)
             {
                 alarmClock = 0f;
@@ -83,17 +81,19 @@ public class AIManager : MonoBehaviour
             if (player)
             {
                 yield return new WaitUntil(() => player == null);
+
+                foreach (var e in enemies)
+                {
+                    e.FindPlayer();
+                }
             }
             else
-            {
                 yield return new WaitForEndOfFrame();
-                continue;    
-            }
+        }
 
-            foreach (var e in enemies)
-            {
-                e.FindPlayer();
-            }            
+        foreach (var e in enemies)
+        {
+            e.Patrol();
         }
     }
 }
