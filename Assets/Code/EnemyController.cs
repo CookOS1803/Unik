@@ -11,13 +11,16 @@ public enum EnemyState
 public class EnemyController : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float distanceOfView = 10f;
-    [SerializeField, Range(0f, 360)] private float fieldOfView = 90f;
+    [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField, Min(0f)] private float noticeTime = 2f;
     [SerializeField] private Transform[] patrolPoints;
+    [SerializeField, Min(0f)] private float findingRadius = 6f;
+    [SerializeField, Min(0f)] private float waitTime = 2f;
     private NavMeshAgent agent;
     private int currentPoint;
     private float noticeClock = 0f;
+    private bool isSeeingPlayer = false;
     
     public Transform player { get; private set; }
     public EnemyState state { get; set; }
@@ -36,7 +39,7 @@ public class EnemyController : MonoBehaviour
         NoticePlayer();
 
         if (AIManager.player != null)
-            agent.SetDestination(AIManager.playerLastKnowPosition);
+            agent.SetDestination(AIManager.playerLastKnownPosition);
     }
 
     private void NoticePlayer()
@@ -54,15 +57,17 @@ public class EnemyController : MonoBehaviour
 
                 if (hit.collider != null && hit.collider.CompareTag("Player"))
                 {
-
                     if (AIManager.alarm || noticeClock >= noticeTime)
                     {
                         player = hit.transform;
                         AIManager.SoundTheAlarm();
                     }
                     else
-                    {                        
-                        noticeClock += Time.deltaTime;
+                    {
+                        isSeeingPlayer = true;
+                        transform.LookAt(cols[0].transform);
+
+                        noticeClock += Time.deltaTime * (distanceOfView / Vector3.Distance(transform.position, cols[0].transform.position));
                     }
                     
                     return;
@@ -71,6 +76,7 @@ public class EnemyController : MonoBehaviour
         }
 
         player = null;
+        isSeeingPlayer = false;
         noticeClock = 0f;
     }
     
@@ -87,7 +93,7 @@ public class EnemyController : MonoBehaviour
         {
             if (agent.velocity == Vector3.zero)
             {
-                while (seekClock < 2f && AIManager.player == null)
+                while (seekClock < waitTime && AIManager.player == null)
                 {
                     seekClock += Time.deltaTime;
 
@@ -109,6 +115,18 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    private void GoToRandomPoint()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * findingRadius;
+        randomDirection += AIManager.playerLastKnownPosition;
+
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, agent.height * 2, 1);
+        Vector3 finalPosition = hit.position;
+
+        agent.SetDestination(finalPosition);
+    }
+
     public void Patrol()
     {
         StartCoroutine(Patroling());
@@ -120,13 +138,22 @@ public class EnemyController : MonoBehaviour
 
         while (!AIManager.alarm)
         {
+            if (isSeeingPlayer)
+            {
+                agent.isStopped = true;
+                yield return new WaitUntil(() => !isSeeingPlayer || AIManager.alarm);
+                agent.isStopped = false;
+
+                continue;
+            }
+
             agent.SetDestination(patrolPoints[currentPoint].position);
             currentPoint = (currentPoint + 1) % patrolPoints.Length;
 
             yield return new WaitWhile(() => agent.velocity == Vector3.zero);
-            yield return new WaitUntil(() => agent.velocity == Vector3.zero || AIManager.alarm);
+            yield return new WaitUntil(() => agent.velocity == Vector3.zero || AIManager.alarm || isSeeingPlayer);
 
-            while (waitClock < 2f && !AIManager.alarm)
+            while (waitClock < waitTime && !AIManager.alarm && !isSeeingPlayer)
             {
                 waitClock += Time.deltaTime;
 
@@ -135,18 +162,6 @@ public class EnemyController : MonoBehaviour
 
             waitClock = 0f;
         }
-    }
-
-    private void GoToRandomPoint()
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * 6f;
-        randomDirection += AIManager.playerLastKnowPosition;
-
-        NavMeshHit hit;
-        NavMesh.SamplePosition(randomDirection, out hit, agent.height * 2, 1);
-        Vector3 finalPosition = hit.position;
-
-        agent.SetDestination(finalPosition);
     }
 
     void OnDestroy()

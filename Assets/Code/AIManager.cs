@@ -5,24 +5,16 @@ using UnityEngine;
 public class AIManager : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float alarmTime = 4f;
+    [SerializeField, Min(0f)] private float forgetTime = 0.5f;
     private float alarmClock = 0f;
+    private float forgetClock = 0f;
     private static AIManager instance;
     private static Transform _player;
-    public static Vector3 playerLastKnowPosition { get; private set; }
+    public static Vector3 playerLastKnownPosition { get; private set; }
     public static List<EnemyController> enemies { get; private set; }
     public static bool alarm { get; private set; } = false;
     
-    public static Transform player
-    {
-        get => _player;
-        private set
-        {
-            if (_player != null)
-                playerLastKnowPosition = _player.position;
-            
-            _player = value;
-        }
-    }
+    public static Transform player { get; private set; }
 
     void Awake()
     {
@@ -39,6 +31,7 @@ public class AIManager : MonoBehaviour
     {
         if (alarm)
         {
+            Debug.Log(forgetClock);
             if (alarmClock >= alarmTime)
             {
                 alarmClock = 0f;
@@ -49,19 +42,44 @@ public class AIManager : MonoBehaviour
                 alarmClock += Time.deltaTime;
             }
             else
+            {
                 alarmClock = 0f;
+            }
+
         }
-
-
+ 
         foreach (var e in enemies)
         {
             if (e.player != null)
             {
-                player = e.player;
+                SetPlayer(e.player);
                 return;
             }
         }
+        
+        if (alarm)
+        {
+            if (forgetClock < forgetTime && player != null)
+            {
+                playerLastKnownPosition = player.position;
+                forgetClock += Time.deltaTime;
+                return;
+            }
+            else
+                forgetClock = 0f;
 
+        }
+        UnsetPlayer();
+    }
+
+    private void SetPlayer(Transform p)
+    {
+        player = p;
+        playerLastKnownPosition = player.position;
+    }
+
+    private void UnsetPlayer()
+    {
         player = null;
     }
 
