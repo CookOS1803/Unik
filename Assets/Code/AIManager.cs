@@ -58,6 +58,11 @@ public class AIManager : MonoBehaviour
             
             instance.StartCoroutine(instance.ManagingAlarm());
             instance.StartCoroutine(instance.ExecutingFind());
+
+            foreach (var e in enemies)
+            {
+                e.SetAlarmedState();
+            }
         }
     }
 
@@ -107,6 +112,7 @@ public class AIManager : MonoBehaviour
 
         foreach (var e in enemies)
         {
+            e.UnsetAlarmedState();
             e.Patrol();
         }
     }

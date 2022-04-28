@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IMoveable
 {
     [SerializeField, Min(0f)] private float distanceOfView = 10f;
+    [SerializeField, Min(0f)] private float attackRange = 1f;
     [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField, Min(0f)] private float noticeTime = 2f;
@@ -14,17 +15,21 @@ public class EnemyController : MonoBehaviour
     [SerializeField, Min(0f)] private float forgetTime = 0.5f;
     [SerializeField] private Transform[] patrolPoints;
     private NavMeshAgent agent;
+    private Animator animator;
+    private PlayerWeapon weapon;
     private int currentPoint;
     private float noticeClock = 0f;
     private float forgetClock = 0f;
     private bool isSeeingPlayer = false;
-    private bool canMove = true;
     
     public Transform player { get; private set; }
+    public bool canMove { get => !agent.isStopped; set => agent.isStopped = !value; }
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+        weapon = GetComponentInChildren<PlayerWeapon>();
 
         AIManager.enemies.Add(this);
 
@@ -34,8 +39,9 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         NoticePlayer();
+        AttackPlayer();
 
-        if (AIManager.player != null && canMove)
+        if (AIManager.player != null)
             agent.SetDestination(AIManager.playerLastKnownPosition);
     }
 
@@ -84,6 +90,15 @@ public class EnemyController : MonoBehaviour
         noticeClock = 0f;
     }
     
+    private void AttackPlayer()
+    {
+        if (AIManager.player != null && canMove && Physics.OverlapSphere(transform.position, attackRange, playerLayer.value).Length != 0)
+        {
+            transform.LookAt(AIManager.player);
+            animator.SetTrigger("attack");
+        }
+    }
+
     public void FindPlayer()
     {
         StartCoroutine(FindingPlayer());
@@ -169,6 +184,26 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    public void SetAlarmedState()
+    {
+        animator.SetBool("isAlarmed", true);
+    }
+
+    public void UnsetAlarmedState()
+    {
+        animator.SetBool("isAlarmed", false);
+    }
+
+    public void OnAttackStartEvent()
+    {
+        weapon.StartDamaging();
+    }
+
+    public void OnAttackEndEvent()
+    {
+        weapon.StopDamaging();
+    }
+
     void OnDestroy()
     {
         AIManager.enemies.Remove(this);
@@ -181,6 +216,8 @@ public class EnemyController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, distanceOfView);
 
         Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(transform.position, attackRange);
 
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, fieldOfView / 2f, 0f)  * (transform.forward) * distanceOfView);
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, -fieldOfView / 2f, 0f) * (transform.forward) * distanceOfView);

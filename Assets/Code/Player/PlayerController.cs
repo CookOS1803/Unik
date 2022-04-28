@@ -4,7 +4,7 @@ using UnityEngine;
 using Zenject;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IMoveable
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private LayerMask floorMask;

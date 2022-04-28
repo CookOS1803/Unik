@@ -849,18 +849,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: forgetTime
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: fieldOfView
-      value: 135
-      objectReference: {fileID: 0}
-    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: patrolPoints.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: patrolPoints.Array.data[0]
       value: 
       objectReference: {fileID: 2030747699}
@@ -868,10 +856,6 @@ PrefabInstance:
       propertyPath: patrolPoints.Array.data[1]
       value: 
       objectReference: {fileID: 334504454}
-    - target: {fileID: 384520037, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: m_AngularSpeed
-      value: 600
-      objectReference: {fileID: 0}
     - target: {fileID: 1022148595836406, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: m_Name
       value: Meshtint Free Knight
@@ -1563,6 +1547,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1153840438, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
+      propertyPath: damageRadius
+      value: 0.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 1153840438, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
+      propertyPath: secondPoint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1153840438, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
+      propertyPath: secondPoint.y
+      value: 0.0026
+      objectReference: {fileID: 0}
+    - target: {fileID: 1153840438, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
+      propertyPath: secondPoint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1153840438, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
+      propertyPath: ignoredLayer.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1012611793270388, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -2067,6 +2071,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4181178952265908, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00552
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a29bc099939289b4ba9888d313c76b15, type: 3}
 --- !u!1001 &1095761632
@@ -2078,15 +2086,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: forgetTime
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: fieldOfView
-      value: 135
-      objectReference: {fileID: 0}
-    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: patrolPoints.Array.size
-      value: 2
+      propertyPath: attackRange
+      value: 0.83
       objectReference: {fileID: 0}
     - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: patrolPoints.Array.data[0]
@@ -2096,14 +2100,6 @@ PrefabInstance:
       propertyPath: patrolPoints.Array.data[1]
       value: 
       objectReference: {fileID: 1246422882}
-    - target: {fileID: 384520037, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: m_AngularSpeed
-      value: 600
-      objectReference: {fileID: 0}
-    - target: {fileID: 384520037, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
-      propertyPath: avoidancePriority
-      value: 50
-      objectReference: {fileID: 0}
     - target: {fileID: 1022148595836406, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: m_Name
       value: Meshtint Free Knight (1)

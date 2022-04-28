@@ -6,6 +6,8 @@ public class PlayerWeapon : MonoBehaviour
 {
     [SerializeField] private int damage = 30;
     [SerializeField] private float damageRadius = 0.5f;
+    [SerializeField] private Vector3 secondPoint;
+    [SerializeField] private LayerMask ignoredLayer;
     private bool isDamaging = false;
 
     public void StartDamaging()
@@ -22,7 +24,7 @@ public class PlayerWeapon : MonoBehaviour
     {
         if (isDamaging)
         {
-            var cols = Physics.OverlapSphere(transform.position, damageRadius);
+            var cols = Physics.OverlapCapsule(transform.position, transform.TransformPoint(secondPoint), damageRadius, ~ignoredLayer);
 
             if (cols.Length != 0)
             {
@@ -41,5 +43,6 @@ public class PlayerWeapon : MonoBehaviour
         Gizmos.color = isDamaging ? Color.green : Color.red;
 
         Gizmos.DrawWireSphere(transform.position, damageRadius);
+        Gizmos.DrawWireSphere(transform.TransformPoint(secondPoint), damageRadius);
     }
 }
