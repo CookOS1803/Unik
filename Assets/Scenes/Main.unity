@@ -849,6 +849,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
+      propertyPath: forgetTime
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
+      propertyPath: fieldOfView
+      value: 135
+      objectReference: {fileID: 0}
+    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: patrolPoints.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -860,6 +868,10 @@ PrefabInstance:
       propertyPath: patrolPoints.Array.data[1]
       value: 
       objectReference: {fileID: 334504454}
+    - target: {fileID: 384520037, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
+      propertyPath: m_AngularSpeed
+      value: 600
+      objectReference: {fileID: 0}
     - target: {fileID: 1022148595836406, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: m_Name
       value: Meshtint Free Knight
@@ -1205,7 +1217,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   alarmTime: 10
-  forgetTime: 4
 --- !u!4 &952911062
 Transform:
   m_ObjectHideFlags: 0
@@ -2066,6 +2077,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
+      propertyPath: forgetTime
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
+      propertyPath: fieldOfView
+      value: 135
+      objectReference: {fileID: 0}
+    - target: {fileID: 384520036, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: patrolPoints.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -2077,6 +2096,14 @@ PrefabInstance:
       propertyPath: patrolPoints.Array.data[1]
       value: 
       objectReference: {fileID: 1246422882}
+    - target: {fileID: 384520037, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
+      propertyPath: m_AngularSpeed
+      value: 600
+      objectReference: {fileID: 0}
+    - target: {fileID: 384520037, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
+      propertyPath: avoidancePriority
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 1022148595836406, guid: 5b5b1958cdf88ce49989e326859b9572, type: 3}
       propertyPath: m_Name
       value: Meshtint Free Knight (1)

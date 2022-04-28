@@ -3,27 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public enum EnemyState
-{
-    Normal, Alarmed
-};
-
 public class EnemyController : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float distanceOfView = 10f;
     [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField, Min(0f)] private float noticeTime = 2f;
-    [SerializeField] private Transform[] patrolPoints;
     [SerializeField, Min(0f)] private float findingRadius = 6f;
     [SerializeField, Min(0f)] private float waitTime = 2f;
+    [SerializeField, Min(0f)] private float forgetTime = 0.5f;
+    [SerializeField] private Transform[] patrolPoints;
     private NavMeshAgent agent;
     private int currentPoint;
     private float noticeClock = 0f;
+    private float forgetClock = 0f;
     private bool isSeeingPlayer = false;
+    private bool canMove = true;
     
     public Transform player { get; private set; }
-    public EnemyState state { get; set; }
 
     void Start()
     {
@@ -38,7 +35,7 @@ public class EnemyController : MonoBehaviour
     {
         NoticePlayer();
 
-        if (AIManager.player != null)
+        if (AIManager.player != null && canMove)
             agent.SetDestination(AIManager.playerLastKnownPosition);
     }
 
@@ -60,6 +57,7 @@ public class EnemyController : MonoBehaviour
                     if (AIManager.alarm || noticeClock >= noticeTime)
                     {
                         player = hit.transform;
+                        forgetClock = 0f;
                         AIManager.SoundTheAlarm();
                     }
                     else
@@ -73,6 +71,12 @@ public class EnemyController : MonoBehaviour
                     return;
                 }
             }
+        }
+
+        if (AIManager.alarm && player != null && forgetClock < forgetTime)
+        {
+            forgetClock += Time.deltaTime;
+            return;
         }
 
         player = null;
@@ -89,11 +93,11 @@ public class EnemyController : MonoBehaviour
     {
         float seekClock = 0f;
 
-        while (AIManager.alarm && AIManager.player == null)
+        while (AIManager.lookingForPlayer)
         {
             if (agent.velocity == Vector3.zero)
             {
-                while (seekClock < waitTime && AIManager.player == null)
+                while (seekClock < waitTime && AIManager.lookingForPlayer)
                 {
                     seekClock += Time.deltaTime;
 
@@ -106,8 +110,9 @@ public class EnemyController : MonoBehaviour
                 {
                     GoToRandomPoint();
 
-                    while (agent.velocity != Vector3.zero && AIManager.player == null)
-                        yield return new WaitForEndOfFrame();
+                    yield return new WaitUntil (
+                        () => agent.velocity == Vector3.zero || !AIManager.lookingForPlayer
+                    );
                 }
             }
             else
