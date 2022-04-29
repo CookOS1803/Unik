@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour, IMoveable
     private CharacterController characterController;
     private Weapon weapon;
     private Vector3 moveDirection;
-    [Inject] private UIInventory uiInventory;
     private float verticalAcceleration = 0f;
     private KeyCode[] numberCodes;
     public bool canMove { get; set; } = true;
@@ -27,7 +26,6 @@ public class PlayerController : MonoBehaviour, IMoveable
         playerAnimator = new PlayerAnimator(transform);
         weapon = GetComponentInChildren<Weapon>();
         inventory.owner = transform;
-        uiInventory.SetInventory(inventory);
 
         numberCodes = new KeyCode[]
         {

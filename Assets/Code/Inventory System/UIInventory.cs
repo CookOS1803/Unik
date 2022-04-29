@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class UIInventory : MonoBehaviour
 {
@@ -11,9 +12,11 @@ public class UIInventory : MonoBehaviour
     [SerializeField] private Color selectedSlotColor;
     private RawImage selectedSlotImage;
 
-    public void SetInventory(Inventory newInventory)
+    [Inject]
+    void SetInventory(PlayerController player)
     {
-        inventory = newInventory;
+        inventory = player.inventory;
+
         RefreshInventory();
         inventory.onChange += (object sender, System.EventArgs e) => RefreshInventory();
         inventory.onSlotSelection += (object sender, System.EventArgs e) => SelectSlot();

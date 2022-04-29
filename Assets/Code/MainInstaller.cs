@@ -9,10 +9,10 @@ public class MainInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
+        Container.Bind<Inventory>().FromNew().AsTransient();
+        
         Container.BindInstance(player).AsSingle();
         Container.BindInstance(uiInventory).AsSingle();
         Container.BindInstance(aiManager).AsSingle();
-
-        Container.Bind<Inventory>().FromNew().AsTransient();
     }
 }

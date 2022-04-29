@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +7,8 @@ public class Inventory : IEnumerable
 {
     private Item[] items;
     private int _selectedSlot = 0;
-    public System.EventHandler onChange;
-    public System.EventHandler onSlotSelection;
+    public event EventHandler onChange;
+    public event EventHandler onSlotSelection;
     
     public Transform owner { get; set; }
     public int size => items.Length;
@@ -18,8 +19,7 @@ public class Inventory : IEnumerable
         {
             _selectedSlot = value;
 
-            if (onSlotSelection != null)
-                onSlotSelection(this, new System.EventArgs());
+            onSlotSelection?.Invoke(this, EventArgs.Empty);
         }
     }
     public Item this[int i]
@@ -29,8 +29,7 @@ public class Inventory : IEnumerable
         {
             items[i] = value;
 
-            if (onChange != null)
-                onChange(this, new System.EventArgs());
+            onChange?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -46,8 +45,8 @@ public class Inventory : IEnumerable
             if (items[i] == null)
             {
                 items[i] = newItem;
-                if (onChange != null)
-                    onChange(this, new System.EventArgs());
+                onChange?.Invoke(this, EventArgs.Empty);
+
                 return;
             }
         }
@@ -70,8 +69,7 @@ public class Inventory : IEnumerable
         items[first] = items[second];
         items[second] = tempItem;
 
-        if (onChange != null)
-            onChange(this, new System.EventArgs());
+        onChange?.Invoke(this, EventArgs.Empty);
     }
 
     public IEnumerator GetEnumerator()
@@ -95,8 +93,7 @@ public class Inventory : IEnumerable
         items[selectedSlot].data.action.Use(owner);
         items[selectedSlot] = null;
 
-        if (onChange != null)
-            onChange(this, new System.EventArgs());
+        onChange?.Invoke(this, EventArgs.Empty);
     }
 
     public bool IsFull()

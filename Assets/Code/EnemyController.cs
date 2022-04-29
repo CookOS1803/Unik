@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,12 +22,33 @@ public class EnemyController : MonoBehaviour, IMoveable
     private Animator animator;
     private Weapon weapon;
     private int currentPoint;
-    private float noticeClock = 0f;
+    private float _noticeClock = 0f;
+    private float noticeClock
+    {
+        get => _noticeClock;
+        set
+        {
+            _noticeClock = value;
+
+            onNoticeClockChange?.Invoke();
+        }
+    }
     private float forgetClock = 0f;
     private bool isSeeingPlayer = false;
     
     public Transform player { get; private set; }
     public bool canMove { get => !agent.isStopped; set => agent.isStopped = !value; }
+    public float normalizedNoticeClock => noticeClock / noticeTime;
+
+    public event Action onNoticeClockChange;
+    public event Action onNoticeClockReset;
+
+    void ResetNoticeClock()
+    {
+        _noticeClock = 0f;
+
+        onNoticeClockReset?.Invoke();
+    }
 
     void Start()
     {
@@ -139,7 +161,7 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     private void GoToRandomPoint()
     {
-        Vector3 randomDirection = Random.insideUnitSphere * findingRadius;
+        Vector3 randomDirection = UnityEngine.Random.insideUnitSphere * findingRadius;
         randomDirection += aiManager.playerLastKnownPosition;
 
         NavMeshHit hit;
@@ -173,7 +195,7 @@ public class EnemyController : MonoBehaviour, IMoveable
                     yield return new WaitForEndOfFrame();
                 }
 
-                noticeClock = 0f;
+                ResetNoticeClock();
 
                 agent.isStopped = false;
 

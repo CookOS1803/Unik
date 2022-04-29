@@ -7,14 +7,9 @@ using Zenject;
 public class ItemSlot : MonoBehaviour, IDropHandler
 {
     [Inject] private DiContainer container;
-    private UIInventory uiInventory;
+    [Inject] private UIInventory uiInventory;
     private Vector2 initialPosition;
     public int index { get; set; }
-
-    void Start()
-    {
-        uiInventory = GetComponentInParent<UIInventory>();
-    }
     
     public void DestroyItem()
     {
