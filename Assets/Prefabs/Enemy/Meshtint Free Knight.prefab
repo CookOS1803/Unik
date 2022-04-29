@@ -254,9 +254,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   noticeTime: 2
-  findingRadius: 6
+  unseeFactor: 0.3
   waitTime: 2
   forgetTime: 1
+  findingRadius: 6
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}

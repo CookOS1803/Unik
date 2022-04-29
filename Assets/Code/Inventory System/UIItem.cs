@@ -8,7 +8,7 @@ using Zenject;
 public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private Item _item;
-    [Inject] private PlayerController player;
+    private Transform player;
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
     private Image image;
@@ -25,6 +25,12 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             _item = value;
             image.sprite = _item.data.sprite;
         }
+    }
+
+    [Inject]
+    void SetPlayer(PlayerController controller)
+    {
+        player = controller.transform;
     }
 
     void Awake()
@@ -63,13 +69,13 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         RaycastHit hit;
         Vector3 spawnPosition;
 
-        if (Physics.Raycast(player.transform.position + player.transform.up, player.transform.forward + player.transform.up, out hit, 1f))
+        if (Physics.Raycast(player.position + player.up, player.forward + player.up, out hit, 1f))
         {
             spawnPosition = hit.point;
         }
         else
         {
-            spawnPosition = player.transform.position + player.transform.forward + player.transform.up;
+            spawnPosition = player.position + player.forward + player.up;
         }
 
         Instantiate(item.data.prefab, spawnPosition, Quaternion.identity);

@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     [SerializeField] private float itemPickupRadius = 5f;
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
-    private PlayerWeapon weapon;
+    private Weapon weapon;
     private Vector3 moveDirection;
     [Inject] private UIInventory uiInventory;
     private float verticalAcceleration = 0f;
@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     {
         characterController = GetComponent<CharacterController>();
         playerAnimator = new PlayerAnimator(transform);
-        weapon = GetComponentInChildren<PlayerWeapon>();
+        weapon = GetComponentInChildren<Weapon>();
         inventory.owner = transform;
         uiInventory.SetInventory(inventory);
 

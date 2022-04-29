@@ -1,48 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
-public class PlayerWeapon : MonoBehaviour
+public class PlayerWeapon : Weapon
 {
-    [SerializeField] private int damage = 30;
-    [SerializeField] private float damageRadius = 0.5f;
-    [SerializeField] private Vector3 secondPoint;
-    [SerializeField] private LayerMask ignoredLayer;
-    private bool isDamaging = false;
+    [SerializeField] private float backstabDot = 0.5f;
+    [Inject] private AIManager aiManager;
+    private Transform player;
 
-    public void StartDamaging()
+    [Inject]
+    void SetPlayer(PlayerController controller)
     {
-        isDamaging = true;
+        player = controller.transform;
     }
 
-    public void StopDamaging()
+    protected override void OnHit(Collider collider)
     {
-        isDamaging = false;
-    }
+        var enemy = collider.GetComponent<EnemyController>();
 
-    void Update()
-    {
-        if (isDamaging)
+        if (enemy != null && aiManager.player == null)
         {
-            var cols = Physics.OverlapCapsule(transform.position, transform.TransformPoint(secondPoint), damageRadius, ~ignoredLayer);
+            Vector3 playerToEnemy =  enemy.transform.position - player.position;
+            float dot = Vector3.Dot(enemy.transform.forward, playerToEnemy);
 
-            if (cols.Length != 0)
+            if (dot >= backstabDot)
             {
-                var health = cols[0].GetComponent<Health>();
+                enemy.Die();
 
-                if (health != null)
-                    health.TakeDamage(damage);
-
-                StopDamaging();
+                return;
             }
         }
-    }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = isDamaging ? Color.green : Color.red;
-
-        Gizmos.DrawWireSphere(transform.position, damageRadius);
-        Gizmos.DrawWireSphere(transform.TransformPoint(secondPoint), damageRadius);
-    }
+        
+        base.OnHit(collider);
+    }    
 }

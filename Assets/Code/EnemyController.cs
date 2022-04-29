@@ -11,14 +11,15 @@ public class EnemyController : MonoBehaviour, IMoveable
     [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField, Min(0f)] private float noticeTime = 2f;
-    [SerializeField, Min(0f)] private float findingRadius = 6f;
+    [SerializeField, Min(0f)] private float unseeFactor = 0.5f;
     [SerializeField, Min(0f)] private float waitTime = 2f;
     [SerializeField, Min(0f)] private float forgetTime = 0.5f;
+    [SerializeField, Min(0f)] private float findingRadius = 6f;
     [SerializeField] private Transform[] patrolPoints;
     [Inject] private AIManager aiManager;
     private NavMeshAgent agent;
     private Animator animator;
-    private PlayerWeapon weapon;
+    private Weapon weapon;
     private int currentPoint;
     private float noticeClock = 0f;
     private float forgetClock = 0f;
@@ -31,7 +32,7 @@ public class EnemyController : MonoBehaviour, IMoveable
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-        weapon = GetComponentInChildren<PlayerWeapon>();
+        weapon = GetComponentInChildren<Weapon>();
 
         aiManager.enemies.Add(this);
 
@@ -89,7 +90,6 @@ public class EnemyController : MonoBehaviour, IMoveable
 
         player = null;
         isSeeingPlayer = false;
-        noticeClock = 0f;
     }
     
     private void AttackPlayer()
@@ -163,7 +163,18 @@ public class EnemyController : MonoBehaviour, IMoveable
             if (isSeeingPlayer)
             {
                 agent.isStopped = true;
+
                 yield return new WaitUntil(() => !isSeeingPlayer || aiManager.alarm);
+
+                while (noticeClock > 0f && !aiManager.alarm)
+                {
+                    noticeClock -= Time.deltaTime * unseeFactor;
+
+                    yield return new WaitForEndOfFrame();
+                }
+
+                noticeClock = 0f;
+
                 agent.isStopped = false;
 
                 continue;
@@ -204,6 +215,11 @@ public class EnemyController : MonoBehaviour, IMoveable
     public void OnAttackEndEvent()
     {
         weapon.StopDamaging();
+    }
+
+    public void Die()
+    {
+        Destroy(gameObject);
     }
 
     void OnDestroy()
