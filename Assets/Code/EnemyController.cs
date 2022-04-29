@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Zenject;
 
 public class EnemyController : MonoBehaviour, IMoveable
 {
@@ -14,6 +15,7 @@ public class EnemyController : MonoBehaviour, IMoveable
     [SerializeField, Min(0f)] private float waitTime = 2f;
     [SerializeField, Min(0f)] private float forgetTime = 0.5f;
     [SerializeField] private Transform[] patrolPoints;
+    [Inject] private AIManager aiManager;
     private NavMeshAgent agent;
     private Animator animator;
     private PlayerWeapon weapon;
@@ -31,7 +33,7 @@ public class EnemyController : MonoBehaviour, IMoveable
         animator = GetComponent<Animator>();
         weapon = GetComponentInChildren<PlayerWeapon>();
 
-        AIManager.enemies.Add(this);
+        aiManager.enemies.Add(this);
 
         Patrol();
     }
@@ -41,8 +43,8 @@ public class EnemyController : MonoBehaviour, IMoveable
         NoticePlayer();
         AttackPlayer();
 
-        if (AIManager.player != null)
-            agent.SetDestination(AIManager.playerLastKnownPosition);
+        if (aiManager.player != null)
+            agent.SetDestination(aiManager.playerLastKnownPosition);
     }
 
     private void NoticePlayer()
@@ -60,11 +62,11 @@ public class EnemyController : MonoBehaviour, IMoveable
 
                 if (hit.collider != null && hit.collider.CompareTag("Player"))
                 {
-                    if (AIManager.alarm || noticeClock >= noticeTime)
+                    if (aiManager.alarm || noticeClock >= noticeTime)
                     {
                         player = hit.transform;
                         forgetClock = 0f;
-                        AIManager.SoundTheAlarm();
+                        aiManager.SoundTheAlarm();
                     }
                     else
                     {
@@ -79,7 +81,7 @@ public class EnemyController : MonoBehaviour, IMoveable
             }
         }
 
-        if (AIManager.alarm && player != null && forgetClock < forgetTime)
+        if (aiManager.alarm && player != null && forgetClock < forgetTime)
         {
             forgetClock += Time.deltaTime;
             return;
@@ -92,9 +94,9 @@ public class EnemyController : MonoBehaviour, IMoveable
     
     private void AttackPlayer()
     {
-        if (AIManager.player != null && canMove && Physics.OverlapSphere(transform.position, attackRange, playerLayer.value).Length != 0)
+        if (aiManager.player != null && canMove && Physics.OverlapSphere(transform.position, attackRange, playerLayer.value).Length != 0)
         {
-            transform.LookAt(AIManager.player);
+            transform.LookAt(aiManager.player);
             animator.SetTrigger("attack");
         }
     }
@@ -108,11 +110,11 @@ public class EnemyController : MonoBehaviour, IMoveable
     {
         float seekClock = 0f;
 
-        while (AIManager.lookingForPlayer)
+        while (aiManager.lookingForPlayer)
         {
             if (agent.velocity == Vector3.zero)
             {
-                while (seekClock < waitTime && AIManager.lookingForPlayer)
+                while (seekClock < waitTime && aiManager.lookingForPlayer)
                 {
                     seekClock += Time.deltaTime;
 
@@ -121,12 +123,12 @@ public class EnemyController : MonoBehaviour, IMoveable
 
                 seekClock = 0f;
 
-                if (AIManager.player == null)
+                if (aiManager.player == null)
                 {
                     GoToRandomPoint();
 
                     yield return new WaitUntil (
-                        () => agent.velocity == Vector3.zero || !AIManager.lookingForPlayer
+                        () => agent.velocity == Vector3.zero || !aiManager.lookingForPlayer
                     );
                 }
             }
@@ -138,7 +140,7 @@ public class EnemyController : MonoBehaviour, IMoveable
     private void GoToRandomPoint()
     {
         Vector3 randomDirection = Random.insideUnitSphere * findingRadius;
-        randomDirection += AIManager.playerLastKnownPosition;
+        randomDirection += aiManager.playerLastKnownPosition;
 
         NavMeshHit hit;
         NavMesh.SamplePosition(randomDirection, out hit, agent.height * 2, 1);
@@ -156,12 +158,12 @@ public class EnemyController : MonoBehaviour, IMoveable
     {
         float waitClock = 0f;
 
-        while (!AIManager.alarm)
+        while (!aiManager.alarm)
         {
             if (isSeeingPlayer)
             {
                 agent.isStopped = true;
-                yield return new WaitUntil(() => !isSeeingPlayer || AIManager.alarm);
+                yield return new WaitUntil(() => !isSeeingPlayer || aiManager.alarm);
                 agent.isStopped = false;
 
                 continue;
@@ -171,9 +173,9 @@ public class EnemyController : MonoBehaviour, IMoveable
             currentPoint = (currentPoint + 1) % patrolPoints.Length;
 
             yield return new WaitWhile(() => agent.velocity == Vector3.zero);
-            yield return new WaitUntil(() => agent.velocity == Vector3.zero || AIManager.alarm || isSeeingPlayer);
+            yield return new WaitUntil(() => agent.velocity == Vector3.zero || aiManager.alarm || isSeeingPlayer);
 
-            while (waitClock < waitTime && !AIManager.alarm && !isSeeingPlayer)
+            while (waitClock < waitTime && !aiManager.alarm && !isSeeingPlayer)
             {
                 waitClock += Time.deltaTime;
 
@@ -206,7 +208,7 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     void OnDestroy()
     {
-        AIManager.enemies.Remove(this);
+        aiManager.enemies.Remove(this);
     }
 
     void OnDrawGizmos()

@@ -54,5 +54,8 @@
         "Logs/":true,
         "Packages/":true,
         "*.csproj":true
+    },
+    "files.associations": {
+        "LAB5.C": "cpp"
     }
 }

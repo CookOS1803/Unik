@@ -10,9 +10,14 @@ public class UIInventory : MonoBehaviour
     [SerializeField] private Color defaultSlotColor;
     [SerializeField] private Color selectedSlotColor;
     private RawImage selectedSlotImage;
-    
-    void Start()
+
+    public void SetInventory(Inventory newInventory)
     {
+        inventory = newInventory;
+        RefreshInventory();
+        inventory.onChange += (object sender, System.EventArgs e) => RefreshInventory();
+        inventory.onSlotSelection += (object sender, System.EventArgs e) => SelectSlot();
+
         for (int i = 0; i < inventory.size; i++)
         {
             Transform child = transform.GetChild(i);
@@ -22,14 +27,6 @@ public class UIInventory : MonoBehaviour
 
         selectedSlotImage = transform.GetChild(inventory.selectedSlot).GetComponent<RawImage>();
         selectedSlotImage.color = selectedSlotColor;
-    }
-
-    public void SetInventory(Inventory newInventory)
-    {
-        inventory = newInventory;
-        RefreshInventory();
-        inventory.onChange += (object sender, System.EventArgs e) => RefreshInventory();
-        inventory.onSlotSelection += (object sender, System.EventArgs e) => SelectSlot();
     }
 
     public void RefreshInventory()

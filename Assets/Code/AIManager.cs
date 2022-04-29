@@ -5,24 +5,16 @@ using UnityEngine;
 public class AIManager : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float alarmTime = 4f;
-    private float alarmClock = 0f;
-    private static AIManager instance;
-    public static Vector3 playerLastKnownPosition { get; private set; }
-    public static List<EnemyController> enemies { get; private set; }
-    public static bool alarm { get; private set; } = false;
+    public Vector3 playerLastKnownPosition { get; private set; }
+    public List<EnemyController> enemies { get; private set; }
+    public bool alarm { get; private set; } = false;
     
-    public static Transform player { get; private set; }
-    public static bool lookingForPlayer => alarm && player == null;
+    public Transform player { get; private set; }
+    public bool lookingForPlayer => alarm && player == null;
 
     void Awake()
     {
-        if (instance != null)
-            Debug.LogError("AIManager object already exists");
-        else
-        {
-            instance = this;
-            enemies = new List<EnemyController>();
-        }
+        enemies = new List<EnemyController>();
     }
 
     void Update()
@@ -50,14 +42,14 @@ public class AIManager : MonoBehaviour
         player = null;
     }
 
-    public static void SoundTheAlarm()
+    public void SoundTheAlarm()
     {
         if (!alarm)
         {
             alarm = true;
             
-            instance.StartCoroutine(instance.ManagingAlarm());
-            instance.StartCoroutine(instance.ExecutingFind());
+            StartCoroutine(ManagingAlarm());
+            StartCoroutine(ExecutingFind());
 
             foreach (var e in enemies)
             {
@@ -68,6 +60,8 @@ public class AIManager : MonoBehaviour
 
     IEnumerator ManagingAlarm()
     {
+        float alarmClock = 0f;
+
         while (alarm)
         {
             yield return new WaitUntil(() => player == null);
