@@ -50,7 +50,7 @@ public class Weapon : MonoBehaviour
             //
             //shape.rotation = new Vector3(shape.rotation.x, collider.transform.eulerAngles.y - Vector3.SignedAngle(collider.transform.forward, direction, Vector3.up), shape.rotation.z);
 
-            particles.Play();
+            particles.Emit(6);
         }    
     }
 

@@ -38,4 +38,9 @@ public class PlayerAnimator
     {
         animator.SetTrigger("death");
     }
+
+    public void ResetAnimations()
+    {
+        animator.SetBool("isMoving", false);
+    }
 }

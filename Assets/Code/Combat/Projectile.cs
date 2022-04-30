@@ -27,7 +27,10 @@ public class Projectile : MonoBehaviour
         enemy?.Stun();
 
         var particles = other.GetComponent<ParticleSystem>();
-        particles?.Play();
+        if (particles != null)
+        {
+            particles.Emit(6);
+        }
 
         Destroy(gameObject);
     }

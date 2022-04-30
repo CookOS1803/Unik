@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     [SerializeField] private float speed = 5f;
     [SerializeField] private LayerMask floorMask;
     [SerializeField] private LayerMask itemMask;
+    [SerializeField] private LayerMask hideoutMask;
     [SerializeField] private float itemPickupRadius = 5f;
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
@@ -18,6 +20,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     private float verticalAcceleration = 0f;
     private KeyCode[] numberCodes;
     private bool isDying = false;
+    private Transform currentHideout;
     public bool canMove { get; set; } = true;
 
     [Inject] public Inventory inventory { get; private set; }
@@ -44,19 +47,43 @@ public class PlayerController : MonoBehaviour, IMoveable
 
     void Update()
     {
-        if (canMove && !isDying)
+        if (currentHideout != null)
         {
-            Move();
-            Turn();
-            Attack();
-            PickItem();
-            UseItem();
+            
+            ExitHideout();
+        }
+        else
+        {
+            if (canMove && !isDying)
+            {
+                Move();
+                Turn();
+                Attack();
+                PickItem();
+                UseItem();
+                Hide();
+            }
+
+            CalculateGravity();
         }
 
-        CalculateGravity();
         SelectItemSlot();
     }
 
+    private void ExitHideout()
+    {
+        if (Input.GetButtonDown("Action"))
+        {
+            transform.position += currentHideout.forward;
+            currentHideout = null;
+            characterController.enabled = true;
+
+            foreach (Transform c in transform)
+            {
+                c.gameObject.SetActive(true);
+            }
+        }
+    }
 
     private void Move()
     {
@@ -97,11 +124,11 @@ public class PlayerController : MonoBehaviour, IMoveable
         if (inventory.IsFull())
             return;
 
-        Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
         if (Physics.OverlapSphere(transform.position, itemPickupRadius, itemMask.value).Length != 0)
         {
+            Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
             if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetButtonDown("Action"))
             {
                 var pickable = hit.collider.GetComponent<ItemPickable>();
@@ -116,6 +143,29 @@ public class PlayerController : MonoBehaviour, IMoveable
         if (Input.GetButtonDown("Fire2"))
         {
             inventory.UseItem();
+        }
+    }
+    
+    private void Hide()
+    {
+        if (Physics.OverlapSphere(transform.position, itemPickupRadius, hideoutMask.value).Length != 0)
+        {
+            Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, hideoutMask.value) && Input.GetButtonDown("Action"))
+            {
+                currentHideout = hit.transform;
+                characterController.enabled = false;
+
+                foreach (Transform c in transform)
+                {
+                    c.gameObject.SetActive(false);
+                }
+
+                transform.position = currentHideout.position;
+                playerAnimator.ResetAnimations();
+            }
         }
     }
 
