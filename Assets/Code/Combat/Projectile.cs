@@ -6,7 +6,7 @@ public class Projectile : MonoBehaviour
 {
     [SerializeField] private int damage = 50;
     [SerializeField] private float speed = 4f;
-    [SerializeField] private float lifeTime = 5f;
+    [SerializeField, Min(0f)] private float lifeTime = 5f;
     private float lifeClock = 0f;
 
     void Update()
@@ -18,14 +18,16 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
     }
 
-    void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerEnter(Collider other)
     {
         var health = other.GetComponent<Health>();
+        health?.TakeDamage(damage);
 
-        if (health != null)
-        {
-            health.TakeDamage(damage);
-        }
+        var enemy = other.GetComponent<EnemyController>();
+        enemy?.Stun();
+
+        var particles = other.GetComponent<ParticleSystem>();
+        particles?.Play();
 
         Destroy(gameObject);
     }

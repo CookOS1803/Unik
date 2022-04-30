@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     private Vector3 moveDirection;
     private float verticalAcceleration = 0f;
     private KeyCode[] numberCodes;
+    private bool isDying = false;
     public bool canMove { get; set; } = true;
 
     [Inject] public Inventory inventory { get; private set; }
@@ -43,7 +44,7 @@ public class PlayerController : MonoBehaviour, IMoveable
 
     void Update()
     {
-        if (canMove)
+        if (canMove && !isDying)
         {
             Move();
             Turn();
@@ -173,6 +174,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     void Die()
     {
         gameObject.layer = 0;
+        isDying = true;
         canMove = false;
         playerAnimator.Die();
     }

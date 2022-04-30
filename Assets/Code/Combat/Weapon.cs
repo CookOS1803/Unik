@@ -38,9 +38,20 @@ public class Weapon : MonoBehaviour
     protected virtual void OnHit(Collider collider)
     {
         var health = collider.GetComponent<Health>();
+        health?.TakeDamage(damage);
 
-        if (health != null)
-            health.TakeDamage(damage);
+        var particles = collider.GetComponent<ParticleSystem>();
+
+        if (particles != null)
+        {
+            //var shape = particles.shape;
+
+            //Vector3 direction = collider.transform.position - transform.position;
+            //
+            //shape.rotation = new Vector3(shape.rotation.x, collider.transform.eulerAngles.y - Vector3.SignedAngle(collider.transform.forward, direction, Vector3.up), shape.rotation.z);
+
+            particles.Play();
+        }    
     }
 
     protected virtual void OnDrawGizmos()

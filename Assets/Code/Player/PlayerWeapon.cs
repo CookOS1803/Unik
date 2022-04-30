@@ -25,8 +25,6 @@ public class PlayerWeapon : Weapon
             if (dot >= backstabDot)
             {
                 enemy.Die();
-
-                return;
             }
         }
         

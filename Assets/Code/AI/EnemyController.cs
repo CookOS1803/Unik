@@ -17,9 +17,11 @@ public class EnemyController : MonoBehaviour, IMoveable
     [SerializeField, Min(0f)] private float unseeFactor = 0.5f;
     [SerializeField, Min(0f)] private float waitTime = 2f;
     [SerializeField, Min(0f)] private float forgetTime = 0.5f;
+    [SerializeField, Min(0f)] private float stunTime = 2f;
     [SerializeField, Min(0f)] private float findingRadius = 6f;
     [SerializeField] private Transform[] patrolPoints;
     [Inject] private AIManager aiManager;
+    [Inject] private PlayerController playerRef;
     private NavMeshAgent agent;
     private Animator animator;
     private Health health;
@@ -37,7 +39,10 @@ public class EnemyController : MonoBehaviour, IMoveable
         }
     }
     private float forgetClock = 0f;
+    private float stunClock = 0f;
     private bool isSeeingPlayer = false;
+    private bool isStunned = false;
+    private bool isDying = false;
     
     public Transform player { get; private set; }
     public bool canMove { get => !agent.isStopped; set => agent.isStopped = !value; }
@@ -71,6 +76,9 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     void Update()
     {
+        if (isStunned || isDying)
+            return;
+
         NoticePlayer();
         AttackPlayer();
         Move();
@@ -171,6 +179,8 @@ public class EnemyController : MonoBehaviour, IMoveable
             else
                 yield return new WaitForEndOfFrame();
         }
+
+        agent.SetDestination(patrolPoints[currentPoint].position);
     }
 
     private void GoToRandomPoint()
@@ -257,8 +267,53 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     public void Die()
     {
+        if (isDying)
+            return;
+
         canMove = false;
+        isDying = true;
+
         animator.SetTrigger("death");
+    }
+
+    public void Stun()
+    {
+        if (isStunned)
+            stunClock = 0f;
+        else
+        {
+            StartCoroutine(StunRoutine());
+            StopCoroutine(Patroling());            
+        }
+    }
+
+    IEnumerator StunRoutine()
+    {
+        isStunned = true;
+        canMove = false;
+
+        animator.SetBool("isStunned", true);
+
+        while (stunClock < stunTime && !isDying)
+        {
+            stunClock += Time.deltaTime;
+
+            yield return new WaitForEndOfFrame();
+        }        
+        
+        animator.SetBool("isStunned", false);
+
+        if (!isDying)
+        {
+            stunClock = 0f;
+
+            canMove = true;
+            isStunned = false;
+
+            player = playerRef.transform;
+
+            aiManager.SoundTheAlarm();
+        }
     }
 
     void OnDestroy()

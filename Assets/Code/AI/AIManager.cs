@@ -23,7 +23,7 @@ public class AIManager : MonoBehaviour
         }
     }
 
-    public Vector3 playerLastKnownPosition { get; private set; }
+    public Vector3 playerLastKnownPosition { get; set; }
     public List<EnemyController> enemies { get; private set; }
     public Transform player { get; private set; }
     public bool alarm => _alarm;    
