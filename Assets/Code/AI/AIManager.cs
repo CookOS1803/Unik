@@ -1,16 +1,35 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AIManager : MonoBehaviour
 {
+    public event Action onAlarmEnable;
+    public event Action onAlarmDisable;
+    public event Action onAlarmClockChange;
+
     [SerializeField, Min(0f)] private float alarmTime = 4f;
+    private float _alarmClock = 0f;
+    private bool _alarm = false;
+    private float alarmClock
+    {
+        get => _alarmClock;
+        set
+        {
+            _alarmClock = value;
+
+            onAlarmClockChange?.Invoke();
+        }
+    }
+
     public Vector3 playerLastKnownPosition { get; private set; }
     public List<EnemyController> enemies { get; private set; }
-    public bool alarm { get; private set; } = false;
-    
     public Transform player { get; private set; }
+    public bool alarm => _alarm;    
     public bool lookingForPlayer => alarm && player == null;
+    public float normalizedAlarmClock => alarmClock / alarmTime;
+    
 
     void Awake()
     {
@@ -46,7 +65,7 @@ public class AIManager : MonoBehaviour
     {
         if (!alarm)
         {
-            alarm = true;
+            EnableAlarm();
             
             StartCoroutine(ManagingAlarm());
             StartCoroutine(ExecutingFind());
@@ -58,10 +77,22 @@ public class AIManager : MonoBehaviour
         }
     }
 
+    private void EnableAlarm()
+    {
+        _alarm = true;
+        
+        onAlarmEnable?.Invoke();
+    }
+
+    private void DisableAlarm()
+    {
+        _alarm = false;
+        
+        onAlarmDisable?.Invoke();
+    }
+
     IEnumerator ManagingAlarm()
     {
-        float alarmClock = 0f;
-
         while (alarm)
         {
             yield return new WaitUntil(() => player == null);
@@ -81,7 +112,7 @@ public class AIManager : MonoBehaviour
             }
 
             if (player == null)
-                alarm = false;
+                DisableAlarm();
         }
 
         alarmClock = 0f;

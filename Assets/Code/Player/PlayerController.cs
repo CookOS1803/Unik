@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     [SerializeField] private float itemPickupRadius = 5f;
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
+    private Health health;
     private Weapon weapon;
     private Vector3 moveDirection;
     private float verticalAcceleration = 0f;
@@ -23,8 +24,12 @@ public class PlayerController : MonoBehaviour, IMoveable
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        health = GetComponent<Health>();
         playerAnimator = new PlayerAnimator(transform);
         weapon = GetComponentInChildren<Weapon>();
+
+        health.onDeath += Die;
+
         inventory.owner = transform;
 
         numberCodes = new KeyCode[]
@@ -163,6 +168,13 @@ public class PlayerController : MonoBehaviour, IMoveable
     public void OnAttackEndEvent()
     {
         weapon.StopDamaging();
+    }
+
+    void Die()
+    {
+        gameObject.layer = 0;
+        canMove = false;
+        playerAnimator.Die();
     }
 
     void OnDrawGizmos()

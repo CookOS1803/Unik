@@ -15,11 +15,9 @@ public class HealthBar : MonoBehaviour
     {
         playerHealth = player.GetComponent<Health>();
 
-        playerHealth.onChange += Event_UpdateBar;
+        playerHealth.onChange += UpdateBar;
 
     }
-
-    void Event_UpdateBar(object sender, EventArgs e) => UpdateBar();
 
     void UpdateBar()
     {

@@ -1537,6 +1537,6 @@ MonoBehaviour:
   damage: 30
   damageRadius: 0.22
   secondPoint: {x: 0, y: 0.46, z: 0}
-  ignoredLayer:
+  reactingLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 64

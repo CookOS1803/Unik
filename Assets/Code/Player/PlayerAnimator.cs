@@ -33,4 +33,9 @@ public class PlayerAnimator
     {
         animator.SetTrigger("Attack");
     }
+
+    public void Die()
+    {
+        animator.SetTrigger("death");
+    }
 }

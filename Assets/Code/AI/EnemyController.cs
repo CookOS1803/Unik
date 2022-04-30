@@ -7,6 +7,8 @@ using Zenject;
 
 public class EnemyController : MonoBehaviour, IMoveable
 {
+    [SerializeField, Min(0f)] private float calmSpeed = 1.5f;
+    [SerializeField, Min(0f)] private float alarmedSpeed = 3.5f;
     [SerializeField, Min(0f)] private float distanceOfView = 10f;
     [SerializeField, Min(0f)] private float attackRange = 1f;
     [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
@@ -20,6 +22,7 @@ public class EnemyController : MonoBehaviour, IMoveable
     [Inject] private AIManager aiManager;
     private NavMeshAgent agent;
     private Animator animator;
+    private Health health;
     private Weapon weapon;
     private int currentPoint;
     private float _noticeClock = 0f;
@@ -54,9 +57,14 @@ public class EnemyController : MonoBehaviour, IMoveable
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        health = GetComponent<Health>();
         weapon = GetComponentInChildren<Weapon>();
 
+        health.onDeath += Die;
+
         aiManager.enemies.Add(this);
+
+        agent.speed = calmSpeed;
 
         Patrol();
     }
@@ -65,9 +73,15 @@ public class EnemyController : MonoBehaviour, IMoveable
     {
         NoticePlayer();
         AttackPlayer();
+        Move();
+    }
 
+    private void Move()
+    {
         if (aiManager.player != null)
             agent.SetDestination(aiManager.playerLastKnownPosition);
+
+        animator.SetBool("isMoving", agent.velocity != Vector3.zero);
     }
 
     private void NoticePlayer()
@@ -221,11 +235,13 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     public void SetAlarmedState()
     {
+        agent.speed = alarmedSpeed;
         animator.SetBool("isAlarmed", true);
     }
 
     public void UnsetAlarmedState()
     {
+        agent.speed = calmSpeed;
         animator.SetBool("isAlarmed", false);
     }
 
@@ -241,7 +257,8 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     public void Die()
     {
-        Destroy(gameObject);
+        canMove = false;
+        animator.SetTrigger("death");
     }
 
     void OnDestroy()

@@ -7,7 +7,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private int damage = 30;
     [SerializeField] private float damageRadius = 0.5f;
     [SerializeField] private Vector3 secondPoint;
-    [SerializeField] private LayerMask ignoredLayer;
+    [SerializeField] private LayerMask reactingLayer;
     private bool isDamaging = false;
 
     public void StartDamaging()
@@ -24,7 +24,7 @@ public class Weapon : MonoBehaviour
     {
         if (isDamaging)
         {
-            var cols = Physics.OverlapCapsule(transform.position, transform.TransformPoint(secondPoint), damageRadius, ~ignoredLayer);
+            var cols = Physics.OverlapCapsule(transform.position, transform.TransformPoint(secondPoint), damageRadius, reactingLayer);
 
             if (cols.Length != 0)
             {

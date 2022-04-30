@@ -18,8 +18,8 @@ public class UIInventory : MonoBehaviour
         inventory = player.inventory;
 
         RefreshInventory();
-        inventory.onChange += (object sender, System.EventArgs e) => RefreshInventory();
-        inventory.onSlotSelection += (object sender, System.EventArgs e) => SelectSlot();
+        inventory.onChange += RefreshInventory;
+        inventory.onSlotSelection += SelectSlot;
 
         for (int i = 0; i < inventory.size; i++)
         {

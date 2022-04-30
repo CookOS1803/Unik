@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    public event EventHandler onChange;
+    public event Action onChange;
+    public event Action onDeath;
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private int currentHealth;
 
@@ -20,16 +21,19 @@ public class Health : MonoBehaviour
     {
         currentHealth -= damage;
 
-        onChange?.Invoke(this, EventArgs.Empty);
+        onChange?.Invoke();
 
         if (currentHealth <= 0)
-            Destroy(gameObject);
+        {
+            onDeath?.Invoke();
+            enabled = false;
+        }
     }
 
     public void TakeHealing(int healing)
     {
         currentHealth = Mathf.Clamp(currentHealth + healing, currentHealth, maxHealth);
 
-        onChange?.Invoke(this, EventArgs.Empty);
+        onChange?.Invoke();
     }
 }

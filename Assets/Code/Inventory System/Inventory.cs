@@ -7,8 +7,8 @@ public class Inventory : IEnumerable
 {
     private Item[] items;
     private int _selectedSlot = 0;
-    public event EventHandler onChange;
-    public event EventHandler onSlotSelection;
+    public event Action onChange;
+    public event Action onSlotSelection;
     
     public Transform owner { get; set; }
     public int size => items.Length;
@@ -19,7 +19,7 @@ public class Inventory : IEnumerable
         {
             _selectedSlot = value;
 
-            onSlotSelection?.Invoke(this, EventArgs.Empty);
+            onSlotSelection?.Invoke();
         }
     }
     public Item this[int i]
@@ -29,7 +29,7 @@ public class Inventory : IEnumerable
         {
             items[i] = value;
 
-            onChange?.Invoke(this, EventArgs.Empty);
+            onChange?.Invoke();
         }
     }
 
@@ -45,7 +45,7 @@ public class Inventory : IEnumerable
             if (items[i] == null)
             {
                 items[i] = newItem;
-                onChange?.Invoke(this, EventArgs.Empty);
+                onChange?.Invoke();
 
                 return;
             }
@@ -69,7 +69,7 @@ public class Inventory : IEnumerable
         items[first] = items[second];
         items[second] = tempItem;
 
-        onChange?.Invoke(this, EventArgs.Empty);
+        onChange?.Invoke();
     }
 
     public IEnumerator GetEnumerator()
@@ -93,7 +93,7 @@ public class Inventory : IEnumerable
         items[selectedSlot].data.action.Use(owner);
         items[selectedSlot] = null;
 
-        onChange?.Invoke(this, EventArgs.Empty);
+        onChange?.Invoke();
     }
 
     public bool IsFull()
