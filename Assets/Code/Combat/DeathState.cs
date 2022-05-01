@@ -11,6 +11,6 @@ public class DeathState : StateMachineBehaviour
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Destroy(animator.gameObject);
+        animator.GetComponent<IMortal>().OnDeath();
     }
 }

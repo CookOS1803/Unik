@@ -5,7 +5,7 @@ using UnityEngine;
 using Zenject;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour, IMoveable
+public class PlayerController : MonoBehaviour, IMoveable, IMortal
 {
     public event Action onHide;
     public event Action onExitHideout;
@@ -117,7 +117,7 @@ public class PlayerController : MonoBehaviour, IMoveable
 
     private void Attack()
     {
-        if (!UserRaycaster.IsBlockedByUI() && Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && !UserRaycaster.IsBlockedByUI())
         {
             playerAnimator.Attack();
         }
@@ -133,11 +133,14 @@ public class PlayerController : MonoBehaviour, IMoveable
             Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value) && Input.GetButtonDown("Action"))
+            if (Input.GetButtonDown("Action") && Physics.Raycast(camRay, out hit, Mathf.Infinity, itemMask.value))
             {
-                var pickable = hit.collider.GetComponent<ItemPickable>();
-                inventory.Add(pickable.GetItem());
-                pickable.DestroySelf();
+                if (!Physics.Linecast(transform.position + Vector3.up, hit.point, ~itemMask))
+                {
+                    var pickable = hit.collider.GetComponent<ItemPickable>();
+                    inventory.Add(pickable.GetItem());
+                    pickable.DestroySelf();
+                }
             }
         }
     }
@@ -157,19 +160,22 @@ public class PlayerController : MonoBehaviour, IMoveable
             Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, hideoutMask.value) && Input.GetButtonDown("Action"))
+            if (Input.GetButtonDown("Action") && Physics.Raycast(camRay, out hit, Mathf.Infinity, hideoutMask.value))
             {
-                currentHideout = hit.transform;
-                characterController.enabled = false;
-
-                foreach (Transform c in transform)
+                if (!Physics.Linecast(transform.position + Vector3.up, hit.point, ~hideoutMask))
                 {
-                    c.gameObject.SetActive(false);
+                    currentHideout = hit.transform;
+                    characterController.enabled = false;
+
+                    foreach (Transform c in transform)
+                    {
+                        c.gameObject.SetActive(false);
+                    }
+
+                    transform.position = currentHideout.position;
+
+                    onHide?.Invoke();
                 }
-
-                transform.position = currentHideout.position;
-
-                onHide?.Invoke();
             }
         }
     }
@@ -181,9 +187,12 @@ public class PlayerController : MonoBehaviour, IMoveable
             Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, interactableMask.value) && Input.GetButtonDown("Action"))
+            if (Input.GetButtonDown("Action") && Physics.Raycast(camRay, out hit, Mathf.Infinity, interactableMask.value))
             {
-                hit.transform.GetComponent<IInteractable>().Use(transform);
+                if (!Physics.Linecast(transform.position + Vector3.up, hit.point, ~interactableMask))
+                {
+                    hit.transform.GetComponent<IInteractable>().Use(transform);
+                }
             }
         }
     }
@@ -255,5 +264,10 @@ public class PlayerController : MonoBehaviour, IMoveable
         Gizmos.DrawRay(transform.position, moveDirection);
 
         Gizmos.DrawWireSphere(transform.position, itemPickupRadius);
+    }
+
+    public void OnDeath()
+    {        
+        Destroy(this);
     }
 }

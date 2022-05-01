@@ -11,6 +11,7 @@ public class PlayerAnimator
     {
         transform = playerTransform;
         animator = transform.GetComponent<Animator>();
+        
     }
 
     public void AnimateMovement(Vector3 moveDirection)

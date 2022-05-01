@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public interface IInteractable
-{
-    void Use(Transform user);
-}
-
 public class Door : MonoBehaviour, IInteractable
 {
-    [SerializeField] private float openTime = 2f;
-    private NavMeshObstacle obstacle;
-    private bool _isClosed = true;
-    private bool isClosed
+    [SerializeField] protected float openTime = 2f;
+    protected NavMeshObstacle obstacle;
+    protected bool _isClosed = true;
+    protected bool isClosed
     {
         get => _isClosed;
         set
@@ -23,15 +18,15 @@ public class Door : MonoBehaviour, IInteractable
             obstacle.enabled = !value;
         }
     }
-    private readonly Quaternion openingRotation = Quaternion.Euler(0f, 90f, 0f);
-    private readonly Quaternion closingRotation = Quaternion.Euler(0f, -90f, 0f);
+    protected readonly Quaternion openingRotation = Quaternion.Euler(0f, 90f, 0f);
+    protected readonly Quaternion closingRotation = Quaternion.Euler(0f, -90f, 0f);
 
     void Start()
     {
         obstacle = GetComponent<NavMeshObstacle>();
     }
 
-    public void Use(Transform user)
+    public virtual void Use(Transform user)
     {
         if (isClosed)
         {
@@ -43,13 +38,13 @@ public class Door : MonoBehaviour, IInteractable
         }
     }
 
-    private void Open()
+    protected void Open()
     {
         transform.forward = openingRotation * transform.forward;
         isClosed = false;
     }
 
-    private void Close()
+    protected void Close()
     {
         transform.forward = closingRotation * transform.forward;
         isClosed = true;

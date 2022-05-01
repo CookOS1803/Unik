@@ -2874,6 +2874,12 @@ MonoBehaviour:
   itemMask:
     serializedVersion: 2
     m_Bits: 8
+  hideoutMask:
+    serializedVersion: 2
+    m_Bits: 512
+  interactableMask:
+    serializedVersion: 2
+    m_Bits: 1024
   itemPickupRadius: 1.68
 --- !u!114 &383398072
 MonoBehaviour:
@@ -2962,7 +2968,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 0
+  moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
   randomSeed: 0
@@ -3520,7 +3526,7 @@ ParticleSystem:
     angle: 7
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
-    radiusThickness: 0
+    radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 1.01, z: 0}
     m_Rotation: {x: 0, y: 180, z: 0}

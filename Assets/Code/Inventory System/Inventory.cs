@@ -89,11 +89,16 @@ public class Inventory : IEnumerable
     {
         if (items[selectedSlot] == null)
             return;
-        
-        items[selectedSlot].data.action.Use(owner);
-        items[selectedSlot] = null;
 
-        onChange?.Invoke();
+        ItemAction action = items[selectedSlot].data.action;
+
+        if (action != null)
+        {
+            action.Use(owner);
+            items[selectedSlot] = null;
+
+            onChange?.Invoke();
+        }
     }
 
     public bool IsFull()

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
 
-public class EnemyController : MonoBehaviour, IMoveable
+public class EnemyController : MonoBehaviour, IMoveable, IMortal
 {
     [SerializeField, Min(0f)] private float calmSpeed = 1.5f;
     [SerializeField, Min(0f)] private float alarmedSpeed = 3.5f;
@@ -21,6 +21,7 @@ public class EnemyController : MonoBehaviour, IMoveable
     [SerializeField, Min(0f)] private float stunTime = 2f;
     [SerializeField, Min(0f)] private float findingRadius = 6f;
     [SerializeField] private Transform[] patrolPoints;
+    [SerializeField] private ItemData droppedItem;
     [Inject] private AIManager aiManager;
     [Inject] private PlayerController playerRef;
     private NavMeshAgent agent;
@@ -200,7 +201,7 @@ public class EnemyController : MonoBehaviour, IMoveable
 
         while (aiManager.lookingForPlayer)
         {
-            if (agent.velocity == Vector3.zero)
+            if (agent.velocity.sqrMagnitude < 0.01f)
             {
                 while (seekClock < waitTime && aiManager.lookingForPlayer)
                 {
@@ -216,7 +217,7 @@ public class EnemyController : MonoBehaviour, IMoveable
                     GoToRandomPoint();
 
                     yield return new WaitUntil (
-                        () => agent.velocity == Vector3.zero || !aiManager.lookingForPlayer
+                        () => agent.velocity.sqrMagnitude < 0.01f || !aiManager.lookingForPlayer
                     );
                 }
             }
@@ -279,7 +280,8 @@ public class EnemyController : MonoBehaviour, IMoveable
 
             StartCoroutine(RotatingTowards(patrolPoints[currentPoint].rotation));
 
-            currentPoint = (currentPoint + 1) % patrolPoints.Length;
+            if (!isSeeingPlayer)
+                currentPoint = (currentPoint + 1) % patrolPoints.Length;
 
             if (patrolPoints.Length == 1)
                 yield return new WaitForEndOfFrame();
@@ -299,7 +301,7 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     private IEnumerator RotatingTowards(Quaternion desiredRotation)
     {
-        while (transform.rotation != desiredRotation && !isSeeingPlayer)
+        while (transform.rotation != desiredRotation && !isSeeingPlayer && !aiManager.alarm && !isDying)
         {
             transform.rotation = Quaternion.RotateTowards(transform.rotation, desiredRotation, agent.angularSpeed * Time.deltaTime);
 
@@ -390,8 +392,6 @@ public class EnemyController : MonoBehaviour, IMoveable
 
     void OnTriggerEnter(Collider collider)
     {
-        Debug.Log(collider.name);
-
         var door = collider.GetComponent<Door>();
 
         door?.OpenTemporarily();
@@ -409,5 +409,12 @@ public class EnemyController : MonoBehaviour, IMoveable
 
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, fieldOfView / 2f, 0f)  * (transform.forward) * distanceOfView);
         Gizmos.DrawRay(transform.position, Quaternion.Euler(0f, -fieldOfView / 2f, 0f) * (transform.forward) * distanceOfView);
+    }
+
+    public void OnDeath()
+    {
+        if (droppedItem != null)
+            Instantiate(droppedItem.prefab, transform.position + Vector3.up, Quaternion.identity);
+        Destroy(gameObject);
     }
 }

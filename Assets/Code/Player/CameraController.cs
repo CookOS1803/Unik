@@ -8,12 +8,11 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float smoothing = 1f;
     [SerializeField] private float mouseFactor = 1f;
     [SerializeField] private float additionalMouseFactor = 10f;
-    private Vector3 offset;
+    [SerializeField] private Vector3 offset;
     private float currentMouseFactor;
 
     void Start()
     {
-        offset = transform.position - target.position;
         currentMouseFactor = mouseFactor;
     }
 
