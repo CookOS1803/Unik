@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour, IMoveable
     [SerializeField, Min(0f)] private float attackRange = 1f;
     [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
     [SerializeField] private LayerMask playerLayer;
+    [SerializeField] private LayerMask hideoutLayer;
     [SerializeField, Min(0f)] private float noticeTime = 2f;
     [SerializeField, Min(0f)] private float unseeFactor = 0.5f;
     [SerializeField, Min(0f)] private float waitTime = 2f;
@@ -41,10 +42,11 @@ public class EnemyController : MonoBehaviour, IMoveable
     private float forgetClock = 0f;
     private float stunClock = 0f;
     private bool isSeeingPlayer = false;
-    private bool isStunned = false;
     private bool isDying = false;
+    private bool hasSeenPlayerHiding = false;
     
     public Transform player { get; private set; }
+    public bool isStunned { get; private set; } = false;
     public bool canMove { get => !agent.isStopped; set => agent.isStopped = !value; }
     public float normalizedNoticeClock => noticeClock / noticeTime;
 
@@ -82,6 +84,27 @@ public class EnemyController : MonoBehaviour, IMoveable
         NoticePlayer();
         AttackPlayer();
         Move();
+        UnhidePlayer();
+    }
+
+    private void UnhidePlayer()
+    {
+        if (hasSeenPlayerHiding)
+        {
+            var cols = Physics.OverlapSphere(transform.position, attackRange, hideoutLayer.value);
+
+            if (cols.Length != 0)
+            {
+                foreach (var h in cols)
+                {
+                    if (h.transform == playerRef.currentHideout)
+                    {
+                        playerRef.ExitHideout();
+                        hasSeenPlayerHiding = false;
+                    }
+                }
+            }
+        }
     }
 
     private void Move()
@@ -109,6 +132,11 @@ public class EnemyController : MonoBehaviour, IMoveable
                 {
                     if (aiManager.alarm || noticeClock >= noticeTime)
                     {
+                        if (player == null)
+                        {
+                            playerRef.onHide += OnPlayerHide;
+                            playerRef.onExitHideout += OnPlayerExitHideout;
+                        }
                         player = hit.transform;
                         forgetClock = 0f;
                         aiManager.SoundTheAlarm();
@@ -132,8 +160,23 @@ public class EnemyController : MonoBehaviour, IMoveable
             return;
         }
 
+        if (player != null)
+        {
+            playerRef.onHide -= OnPlayerHide;
+            playerRef.onExitHideout -= OnPlayerExitHideout;
+        }
         player = null;
         isSeeingPlayer = false;
+    }
+
+    private void OnPlayerHide()
+    {
+        hasSeenPlayerHiding = true;
+    }
+
+    private void OnPlayerExitHideout()
+    {
+        hasSeenPlayerHiding = false;
     }
     
     private void AttackPlayer()
@@ -141,6 +184,7 @@ public class EnemyController : MonoBehaviour, IMoveable
         if (aiManager.player != null && canMove && Physics.OverlapSphere(transform.position, attackRange, playerLayer.value).Length != 0)
         {
             transform.LookAt(aiManager.player);
+            //transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, aiManager.player.position - transform.position, Time.deltaTime * agent.angularSpeed, 0f));
             animator.SetTrigger("attack");
         }
     }
@@ -180,7 +224,8 @@ public class EnemyController : MonoBehaviour, IMoveable
                 yield return new WaitForEndOfFrame();
         }
 
-        agent.SetDestination(patrolPoints[currentPoint].position);
+        if (!aiManager.alarm)
+            agent.SetDestination(patrolPoints[currentPoint].position);
     }
 
     private void GoToRandomPoint()
@@ -210,7 +255,7 @@ public class EnemyController : MonoBehaviour, IMoveable
             {
                 agent.isStopped = true;
 
-                yield return new WaitUntil(() => !isSeeingPlayer || aiManager.alarm);
+                yield return new WaitUntil(() => !isSeeingPlayer || aiManager.alarm || isStunned);
 
                 while (noticeClock > 0f && !aiManager.alarm)
                 {
@@ -221,25 +266,44 @@ public class EnemyController : MonoBehaviour, IMoveable
 
                 ResetNoticeClock();
 
-                agent.isStopped = false;
+                if (!isStunned)
+                    agent.isStopped = false;
 
                 continue;
             }
 
             agent.SetDestination(patrolPoints[currentPoint].position);
+
+            yield return new WaitWhile(() => agent.velocity.sqrMagnitude < 0.01f);
+            yield return new WaitUntil(() => agent.velocity.sqrMagnitude < 0.01f || aiManager.alarm || isSeeingPlayer);
+
+            StartCoroutine(RotatingTowards(patrolPoints[currentPoint].rotation));
+
             currentPoint = (currentPoint + 1) % patrolPoints.Length;
 
-            yield return new WaitWhile(() => agent.velocity == Vector3.zero);
-            yield return new WaitUntil(() => agent.velocity == Vector3.zero || aiManager.alarm || isSeeingPlayer);
-
-            while (waitClock < waitTime && !aiManager.alarm && !isSeeingPlayer)
-            {
-                waitClock += Time.deltaTime;
-
+            if (patrolPoints.Length == 1)
                 yield return new WaitForEndOfFrame();
-            }
+            else
+            {
+                while (waitClock < waitTime && !aiManager.alarm && !isSeeingPlayer)
+                {
+                    waitClock += Time.deltaTime;
 
-            waitClock = 0f;
+                    yield return new WaitForEndOfFrame();
+                }
+
+                waitClock = 0f;
+            }
+        }
+    }
+
+    private IEnumerator RotatingTowards(Quaternion desiredRotation)
+    {
+        while (transform.rotation != desiredRotation && !isSeeingPlayer)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, desiredRotation, agent.angularSpeed * Time.deltaTime);
+
+            yield return new WaitForEndOfFrame();
         }
     }
 
@@ -282,8 +346,7 @@ public class EnemyController : MonoBehaviour, IMoveable
             stunClock = 0f;
         else
         {
-            StartCoroutine(StunRoutine());
-            StopCoroutine(Patroling());            
+            StartCoroutine(StunRoutine());         
         }
     }
 
@@ -310,15 +373,28 @@ public class EnemyController : MonoBehaviour, IMoveable
             canMove = true;
             isStunned = false;
 
-            player = playerRef.transform;
-
-            aiManager.SoundTheAlarm();
+            Alert();
         }
+    }
+
+    public void Alert()
+    {
+        player = playerRef.transform;
+        aiManager.SoundTheAlarm();
     }
 
     void OnDestroy()
     {
         aiManager.enemies.Remove(this);
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        Debug.Log(collider.name);
+
+        var door = collider.GetComponent<Door>();
+
+        door?.OpenTemporarily();
     }
 
     void OnDrawGizmos()

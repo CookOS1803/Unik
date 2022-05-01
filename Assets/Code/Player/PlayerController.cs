@@ -7,10 +7,14 @@ using Zenject;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour, IMoveable
 {
+    public event Action onHide;
+    public event Action onExitHideout;
+
     [SerializeField] private float speed = 5f;
     [SerializeField] private LayerMask floorMask;
     [SerializeField] private LayerMask itemMask;
     [SerializeField] private LayerMask hideoutMask;
+    [SerializeField] private LayerMask interactableMask;
     [SerializeField] private float itemPickupRadius = 5f;
     private PlayerAnimator playerAnimator;
     private CharacterController characterController;
@@ -20,7 +24,7 @@ public class PlayerController : MonoBehaviour, IMoveable
     private float verticalAcceleration = 0f;
     private KeyCode[] numberCodes;
     private bool isDying = false;
-    private Transform currentHideout;
+    public Transform currentHideout { get; private set; }
     public bool canMove { get; set; } = true;
 
     [Inject] public Inventory inventory { get; private set; }
@@ -49,8 +53,8 @@ public class PlayerController : MonoBehaviour, IMoveable
     {
         if (currentHideout != null)
         {
-            
-            ExitHideout();
+            if (Input.GetButtonDown("Action"))
+                ExitHideout();
         }
         else
         {
@@ -62,6 +66,7 @@ public class PlayerController : MonoBehaviour, IMoveable
                 PickItem();
                 UseItem();
                 Hide();
+                Interact();
             }
 
             CalculateGravity();
@@ -70,19 +75,18 @@ public class PlayerController : MonoBehaviour, IMoveable
         SelectItemSlot();
     }
 
-    private void ExitHideout()
+    public void ExitHideout()
     {
-        if (Input.GetButtonDown("Action"))
-        {
-            transform.position += currentHideout.forward;
-            currentHideout = null;
-            characterController.enabled = true;
+        transform.position += currentHideout.forward;
+        currentHideout = null;
+        characterController.enabled = true;
 
-            foreach (Transform c in transform)
-            {
-                c.gameObject.SetActive(true);
-            }
+        foreach (Transform c in transform)
+        {
+            c.gameObject.SetActive(true);
         }
+
+        onExitHideout?.Invoke();
     }
 
     private void Move()
@@ -164,7 +168,22 @@ public class PlayerController : MonoBehaviour, IMoveable
                 }
 
                 transform.position = currentHideout.position;
-                playerAnimator.ResetAnimations();
+
+                onHide?.Invoke();
+            }
+        }
+    }
+
+    private void Interact()
+    {
+        if (Physics.OverlapSphere(transform.position, itemPickupRadius, interactableMask.value).Length != 0)
+        {
+            Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(camRay, out hit, Mathf.Infinity, interactableMask.value) && Input.GetButtonDown("Action"))
+            {
+                hit.transform.GetComponent<IInteractable>().Use(transform);
             }
         }
     }

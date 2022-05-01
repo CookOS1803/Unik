@@ -17,15 +17,18 @@ public class PlayerWeapon : Weapon
     {
         var enemy = collider.GetComponent<EnemyController>();
 
-        if (enemy != null && aiManager.player == null)
+        if (enemy != null)
         {
-            Vector3 playerToEnemy =  enemy.transform.position - player.position;
-            float dot = Vector3.Dot(enemy.transform.forward, playerToEnemy);
-
-            if (dot >= backstabDot)
+            if (enemy.isStunned ||
+                aiManager.player == null && Vector3.Dot(enemy.transform.forward, enemy.transform.position - player.position) >= backstabDot)
             {
                 enemy.Die();
             }
+            else
+            {
+                enemy.Alert();
+            }
+
         }
         
         base.OnHit(collider);

@@ -449,6 +449,9 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
+  hideoutLayer:
+    serializedVersion: 2
+    m_Bits: 512
   noticeTime: 2
   unseeFactor: 0.3
   waitTime: 2
@@ -467,7 +470,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1022148595836406}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: Infinity
   avoidancePriority: 50
@@ -6293,7 +6296,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1130564064221434572}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.007, y: 0.44, z: 0.01}
+  m_LocalPosition: {x: 0.007, y: 0.092, z: 0.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4853707045179124}
@@ -6312,8 +6315,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 30
-  damageRadius: 0.22
-  secondPoint: {x: 0, y: 0.46, z: 0}
+  damageRadius: 0.15
+  secondPoint: {x: -0.01, y: 0.94, z: 0}
   reactingLayer:
     serializedVersion: 2
     m_Bits: 64

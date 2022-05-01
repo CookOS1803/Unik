@@ -58,7 +58,15 @@ public class Weapon : MonoBehaviour
     {
         Gizmos.color = isDamaging ? Color.green : Color.red;
 
+        Vector3 center = transform.TransformPoint(secondPoint);
         Gizmos.DrawWireSphere(transform.position, damageRadius);
-        Gizmos.DrawWireSphere(transform.TransformPoint(secondPoint), damageRadius);
+        Gizmos.DrawWireSphere(center, damageRadius);
+
+        Vector3 vector31 = Vector3.Cross(transform.right, transform.position - center).normalized * damageRadius;
+        Vector3 vector32 = Vector3.Cross(transform.forward, transform.position - center).normalized * damageRadius;
+        Gizmos.DrawLine(transform.position + vector31, center + vector31);
+        Gizmos.DrawLine(transform.position + -vector31, center + -vector31);
+        Gizmos.DrawLine(transform.position + vector32, center + vector32);
+        Gizmos.DrawLine(transform.position + -vector32, center + -vector32);
     }
 }
