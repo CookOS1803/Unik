@@ -58,6 +58,8 @@ public class PlayerController : MonoBehaviour, IMoveable, IMortal
         }
         else
         {
+            CalculateGravity();
+            
             if (canMove && !isDying)
             {
                 Move();
@@ -68,8 +70,6 @@ public class PlayerController : MonoBehaviour, IMoveable, IMortal
                 Hide();
                 Interact();
             }
-
-            CalculateGravity();
         }
 
         SelectItemSlot();

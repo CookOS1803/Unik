@@ -9,9 +9,9 @@ public class EnemyController : MonoBehaviour, IMoveable, IMortal
 {
     [SerializeField, Min(0f)] private float calmSpeed = 1.5f;
     [SerializeField, Min(0f)] private float alarmedSpeed = 3.5f;
-    [SerializeField, Min(0f)] private float distanceOfView = 10f;
     [SerializeField, Min(0f)] private float attackRange = 1f;
-    [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
+    [SerializeField, Min(0f)] private float _distanceOfView = 10f;
+    [SerializeField, Range(0f, 360f)] private float _fieldOfView = 90f;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField] private LayerMask hideoutLayer;
     [SerializeField, Min(0f)] private float noticeTime = 2f;
@@ -50,6 +50,8 @@ public class EnemyController : MonoBehaviour, IMoveable, IMortal
     public bool isStunned { get; private set; } = false;
     public bool canMove { get => !agent.isStopped; set => agent.isStopped = !value; }
     public float normalizedNoticeClock => noticeClock / noticeTime;
+    public float distanceOfView => _distanceOfView;
+    public float fieldOfView => _fieldOfView;
 
     public event Action onNoticeClockChange;
     public event Action onNoticeClockReset;

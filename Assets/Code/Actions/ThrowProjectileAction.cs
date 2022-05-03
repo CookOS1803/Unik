@@ -9,6 +9,6 @@ public class ThrowProjectileAction : ItemAction
 
     public override void Use(Transform actor)
     {
-        Instantiate(projectilePrefab, actor.position + Vector3.up + actor.forward, actor.rotation);
+        Instantiate(projectilePrefab, actor.position + Vector3.up + actor.forward * 0.5f, actor.rotation);
     }
 }
