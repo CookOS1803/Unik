@@ -7,7 +7,7 @@ using Zenject;
 
 public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private Item _item;
+    [SerializeField] private ItemData item;
     private Canvas canvas;
     private Transform player;
     private RectTransform rectTransform;
@@ -18,23 +18,13 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     public int index { get; set; }
     public Inventory inventory { get; set; }
 
-    public Item item
-    {
-        get => _item;
-        set
-        {
-            _item = value;
-            image.sprite = _item.data.sprite;
-        }
-    }
-
     [Inject]
     void SetPlayer(PlayerController controller)
     {
         player = controller.transform;
     }
 
-    void Awake()
+    void Start()
     {   
         canvas = GetComponentInParent<Canvas>();
         rectTransform = GetComponent<RectTransform>();
@@ -45,6 +35,19 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         initialPosition = rectTransform.anchoredPosition;
     }
 
+    public void SetItem(ItemData data)
+    {
+        item = data;
+        image.sprite = data.sprite;
+        image.color = new Color(1f, 1f, 1f, 1f);
+    }
+
+    public void UnsetItem()
+    {
+        item = null;
+        image.sprite = null;
+        image.color = new Color(1f, 1f, 1f, 0f);
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -80,7 +83,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             spawnPosition = player.position + player.forward + player.up;
         }
 
-        Instantiate(item.data.prefab, spawnPosition, Quaternion.identity);
+        Instantiate(item.prefab, spawnPosition, Quaternion.identity);
         inventory[index] = null;
 
     }

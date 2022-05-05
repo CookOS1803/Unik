@@ -6,29 +6,26 @@ using Zenject;
 
 public class ItemSlot : MonoBehaviour, IDropHandler
 {
-    [Inject] private DiContainer container;
     [Inject] private UIInventory uiInventory;
+    private UIItem child;
     private Vector2 initialPosition;
     public int index { get; set; }
     
-    public void DestroyItem()
+    void Start()
     {
-        if (transform.childCount != 0)
-            Destroy(transform.GetChild(0).gameObject);
+        child = GetComponentInChildren<UIItem>();
+        child.inventory = uiInventory.inventory;
+        child.index = index;
     }
 
-    public void SetItem(GameObject prefab, Item item)
+    public void DestroyItem()
     {
-        UIItem i;
+        child.UnsetItem();
+    }
 
-        if (transform.childCount != 0)
-            i = transform.GetChild(0).GetComponent<UIItem>();
-        else
-            i = container.InstantiatePrefab(prefab, transform).GetComponent<UIItem>();
-
-        i.item = item;
-        i.index = index;
-        i.inventory = uiInventory.inventory;
+    public void SetItem(GameObject prefab, ItemData item)
+    {
+        child.SetItem(item);        
     }
 
     public void OnDrop(PointerEventData eventData)

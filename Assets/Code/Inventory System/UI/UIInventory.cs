@@ -44,7 +44,7 @@ public class UIInventory : MonoBehaviour
             }
             else
             {
-                slot.SetItem(itemPrefab, inventory[i]);
+                slot.SetItem(itemPrefab, inventory[i].data);
             }
         }
     }
