@@ -8,6 +8,7 @@ using Zenject;
 public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private Item _item;
+    private Canvas canvas;
     private Transform player;
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
@@ -35,6 +36,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     void Awake()
     {   
+        canvas = GetComponentInParent<Canvas>();
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         image = GetComponent<Image>();
@@ -52,7 +54,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnDrag(PointerEventData eventData)
     {
-        rectTransform.anchoredPosition += eventData.delta;
+        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
