@@ -278,7 +278,7 @@ public class EnemyController : MonoBehaviour, IMoveable, IMortal
             agent.SetDestination(patrolPoints[currentPoint].position);
 
             yield return new WaitWhile(() => agent.velocity.sqrMagnitude < 0.01f);
-            yield return new WaitUntil(() => agent.velocity.sqrMagnitude < 0.01f || aiManager.alarm || isSeeingPlayer);
+            yield return new WaitUntil(() => Vector3.Distance(agent.destination, transform.position) <= agent.stoppingDistance || aiManager.alarm || isSeeingPlayer);
 
             StartCoroutine(RotatingTowards(patrolPoints[currentPoint].rotation));
 
@@ -303,7 +303,7 @@ public class EnemyController : MonoBehaviour, IMoveable, IMortal
 
     private IEnumerator RotatingTowards(Quaternion desiredRotation)
     {
-        while (transform.rotation != desiredRotation && !isSeeingPlayer && !aiManager.alarm && !isDying)
+        while (transform.rotation != desiredRotation && !isSeeingPlayer && !aiManager.alarm && !isDying && !isStunned)
         {
             transform.rotation = Quaternion.RotateTowards(transform.rotation, desiredRotation, agent.angularSpeed * Time.deltaTime);
 

@@ -7,26 +7,17 @@ using Zenject;
 
 public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private Item _item;
+    [SerializeField] private ItemData item;
     private Canvas canvas;
     private Transform player;
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
     private Image image;
     private Vector2 initialPosition;
-    public Transform parent { get; private set; }
-    public int index { get; set; }
+    private ItemSlot slot;
+    public Transform parent => slot.transform;
+    public int index => slot.index;
     public Inventory inventory { get; set; }
-
-    public Item item
-    {
-        get => _item;
-        set
-        {
-            _item = value;
-            image.sprite = _item.data.sprite;
-        }
-    }
 
     [Inject]
     void SetPlayer(PlayerController controller)
@@ -35,16 +26,28 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     }
 
     void Awake()
-    {   
+    {
         canvas = GetComponentInParent<Canvas>();
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         image = GetComponent<Image>();
-        parent = transform.parent;
+        slot = GetComponentInParent<ItemSlot>();
 
         initialPosition = rectTransform.anchoredPosition;
     }
 
+    public void SetItem(ItemData data)
+    {
+        item = data;
+        image.enabled = true;
+        image.sprite = data.sprite;
+    }
+
+    public void UnsetItem()
+    {
+        item = null;
+        image.enabled = false;
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -80,7 +83,7 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             spawnPosition = player.position + player.forward + player.up;
         }
 
-        Instantiate(item.data.prefab, spawnPosition, Quaternion.identity);
+        Instantiate(item.prefab, spawnPosition, Quaternion.identity);
         inventory[index] = null;
 
     }

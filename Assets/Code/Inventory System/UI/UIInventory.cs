@@ -7,7 +7,6 @@ using Zenject;
 public class UIInventory : MonoBehaviour
 {
     public Inventory inventory { get; private set; }
-    [SerializeField] private GameObject itemPrefab;
     [SerializeField] private Color defaultSlotColor;
     [SerializeField] private Color selectedSlotColor;
     private RawImage selectedSlotImage;
@@ -15,8 +14,11 @@ public class UIInventory : MonoBehaviour
     [Inject]
     void SetInventory(PlayerController player)
     {
-        inventory = player.inventory;
+        inventory = player.inventory;        
+    }
 
+    void Start()
+    {
         RefreshInventory();
         inventory.onChange += RefreshInventory;
         inventory.onSlotSelection += SelectSlot;
@@ -40,11 +42,11 @@ public class UIInventory : MonoBehaviour
             
             if (inventory[i] == null)
             {
-                slot.DestroyItem();
+                slot.UnsetItem();
             }
             else
             {
-                slot.SetItem(itemPrefab, inventory[i]);
+                slot.SetItem(inventory[i].data);
             }
         }
     }
