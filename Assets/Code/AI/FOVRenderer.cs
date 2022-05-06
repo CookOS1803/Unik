@@ -46,6 +46,8 @@ public class FOVRenderer : MonoBehaviour
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+
+        mesh.RecalculateBounds();
     }
 
     private Vector3 GetVertex(float angle)

@@ -79,3 +79,4 @@ MonoBehaviour:
   uiInventory: {fileID: 0}
   aiManager: {fileID: 0}
   player: {fileID: 0}
+  camera: {fileID: 0}
