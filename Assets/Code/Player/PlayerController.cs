@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour, IMoveable, IMortal
 {
     public event Action onHide;
     public event Action onExitHideout;
+    public event Action onDeath;
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private LayerMask floorMask;
@@ -267,7 +268,9 @@ public class PlayerController : MonoBehaviour, IMoveable, IMortal
     }
 
     public void OnDeath()
-    {        
+    {   
+        onDeath?.Invoke();
+
         Destroy(this);
     }
 }
