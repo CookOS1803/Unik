@@ -11,7 +11,7 @@ public class ItemSlot : MonoBehaviour, IDropHandler
     private Vector2 initialPosition;
     public int index { get; set; }
     
-    void Start()
+    void Awake()
     {
         child = GetComponentInChildren<UIItem>();
         child.inventory = uiInventory.inventory;
