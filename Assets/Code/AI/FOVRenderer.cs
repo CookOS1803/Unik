@@ -58,7 +58,7 @@ public class FOVRenderer : MonoBehaviour
     private Vector3 ApplyObstacle(Vector3 vertex)
     {
         RaycastHit hit;
-        if (Physics.Linecast(transform.position, transform.position + transform.parent.TransformDirection(vertex), out hit))
+        if (Physics.Linecast(transform.position, transform.position + transform.parent.TransformDirection(vertex / scaleFactor), out hit))
         {
             vertex *= Vector3.Distance(transform.position, hit.point) / enemy.distanceOfView;
         }
