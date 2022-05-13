@@ -122,40 +122,16 @@ public class EnemyController : MonoBehaviour, IMoveable, IMortal
     {
         var cols = Physics.OverlapSphere(transform.position, distanceOfView, playerLayer.value);
 
-        if (cols.Length != 0)
-        {
-            float angle = Vector3.Angle(transform.forward, cols[0].transform.position - transform.position);
+        if (cols.Length == 0)
+            return;
 
-            if (angle <= fieldOfView / 2f)
-            {   
-                RaycastHit hit;
-                Physics.Linecast(transform.position + Vector3.up, cols[0].transform.position + Vector3.up, out hit);
+        float angle = Vector3.Angle(transform.forward, cols[0].transform.position - transform.position);
 
-                if (hit.collider != null && hit.collider.CompareTag("Player"))
-                {
-                    if (aiManager.alarm || noticeClock >= noticeTime)
-                    {
-                        if (player == null)
-                        {
-                            playerRef.onHide += OnPlayerHide;
-                            playerRef.onExitHideout += OnPlayerExitHideout;
-                        }
-                        player = hit.transform;
-                        forgetClock = 0f;
-                        aiManager.SoundTheAlarm();
-                    }
-                    else
-                    {
-                        isSeeingPlayer = true;
-                        transform.LookAt(cols[0].transform);
+        if (angle > fieldOfView * 0.5f)
+            return;
 
-                        noticeClock += Time.deltaTime * (distanceOfView / Vector3.Distance(transform.position, cols[0].transform.position));
-                    }
-                    
-                    return;
-                }
-            }
-        }
+        if (CanSeePlayer(cols[0]))
+            return;
 
         if (aiManager.alarm && player != null && forgetClock < forgetTime)
         {
@@ -170,6 +146,38 @@ public class EnemyController : MonoBehaviour, IMoveable, IMortal
         }
         player = null;
         isSeeingPlayer = false;
+    }
+
+    private bool CanSeePlayer(Collider col)
+    {
+        RaycastHit hit;
+        Physics.Linecast(transform.position + Vector3.up, col.transform.position + Vector3.up, out hit);
+
+        if (hit.collider != null && hit.collider.GetComponent<PlayerController>())
+        {
+            if (aiManager.alarm || noticeClock >= noticeTime)
+            {
+                if (player == null)
+                {
+                    playerRef.onHide += OnPlayerHide;
+                    playerRef.onExitHideout += OnPlayerExitHideout;
+                }
+                player = hit.transform;
+                forgetClock = 0f;
+                aiManager.SoundTheAlarm();
+            }
+            else
+            {
+                isSeeingPlayer = true;
+                transform.LookAt(col.transform);
+
+                noticeClock += Time.deltaTime * (distanceOfView / Vector3.Distance(transform.position, col.transform.position));
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private void OnPlayerHide()
@@ -187,7 +195,6 @@ public class EnemyController : MonoBehaviour, IMoveable, IMortal
         if (aiManager.player != null && canMove && Physics.OverlapSphere(transform.position, attackRange, playerLayer.value).Length != 0)
         {
             transform.LookAt(aiManager.player);
-            //transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, aiManager.player.position - transform.position, Time.deltaTime * agent.angularSpeed, 0f));
             animator.SetTrigger("attack");
         }
     }

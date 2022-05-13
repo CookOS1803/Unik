@@ -44,12 +44,6 @@ public class Weapon : MonoBehaviour
 
         if (particles != null)
         {
-            //var shape = particles.shape;
-
-            //Vector3 direction = collider.transform.position - transform.position;
-            //
-            //shape.rotation = new Vector3(shape.rotation.x, collider.transform.eulerAngles.y - Vector3.SignedAngle(collider.transform.forward, direction, Vector3.up), shape.rotation.z);
-
             particles.Emit(6);
         }    
     }
